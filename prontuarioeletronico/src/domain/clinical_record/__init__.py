@@ -1,0 +1,1 @@
+# Clinical Record Domain Entities
