@@ -17,7 +17,7 @@ Este projeto demonstra a implementação de um Prontuário Eletrônico (Sistema 
 ```
 prontuarioeletronico/
 ├── src/
-│   ├── domain/                    # Camada 1: Entidades
+│   ├── domain/                   # Camada 1: Entidades
 │   │   ├── __seedwork/           # Classes base
 │   │   ├── patient/              # Paciente
 │   │   ├── professional/         # Profissional de Saúde
@@ -61,14 +61,14 @@ A classe fornece propriedades para acessar esses atributos e métodos para:
 
 Ela herda de Entity, sugerindo que faz parte de um padrão de entidades do domínio. O objetivo é centralizar as regras e dados de uma consulta médica, facilitando a manutenção e evolução do sistema.
 
-### 2. scr/domain/cinical_record
+### 2. scr/domain/clinical_record
 O script **rcop_soap.py** define as entidades centrais do **Registro Clínico Orientado por Problemas (RCOP)**, estruturando o prontuário clínico segundo o modelo **Subjective, Objective, Assessment, Plan (SOAP)**. Ele implementa as seguintes classes principais:
 
-- **Problem**: Representa um problema clínico do paciente (diagnóstico ou condição médica que requer monitoramento e tratamento) dentro do sistema RCOP. É o eixo central em tordo do qual as noas SOAP são organizadas. Apresenta os seguintes atributos:
+- **Problem**: Representa um problema clínico do paciente (diagnóstico ou condição médica que requer monitoramento e tratamento) dentro do sistema RCOP. É o eixo central em tordo do qual as notas SOAP são organizadas. Apresenta os seguintes atributos:
 
     - **id**: Identificador único para o problema.
     - **patient_id**: Referência ao paciente.
-    - **description**: descrição clínicqa do problema.
+    - **description**: Descrição clínicqa do problema.
     - **icd10_code**: Código ICD-10 do problema.
     - **status**: Active, resolved, archived (ativo, resolvido ou arquivado).
     - **created_at**: Data e hora de criação.
