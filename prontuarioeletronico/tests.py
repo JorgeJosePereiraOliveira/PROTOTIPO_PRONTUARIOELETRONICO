@@ -4,9 +4,9 @@ Unit Tests - Demonstrando testabilidade sem banco de dados ou interfaces
 
 import unittest
 from datetime import datetime
-from src.domain.patient.patient_entity import Patient
-from src.domain.clinical_record.rcop_soap import Problem, ClinicalRecord, Subjective, Objective, Assessment, Plan
-from src.domain.appointment.appointment_entity import Appointment
+from prontuarioeletronico.src.domain.patient.patient_entity import Patient
+from prontuarioeletronico.src.domain.clinical_record.rcop_soap import Problem, ClinicalRecord, Subjective, Objective, Assessment, Plan
+from prontuarioeletronico.src.domain.appointment.appointment_entity import Appointment
 
 
 class TestPatientEntity(unittest.TestCase):

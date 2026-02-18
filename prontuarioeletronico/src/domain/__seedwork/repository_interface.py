@@ -21,7 +21,7 @@ Escalabilidade: Múltiplas implementações (SQL, NoSQL, cache, etc.)
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, List, Optional
 
-from .entity import Entity
+from prontuarioeletronico.src.domain.__seedwork.entity import Entity
 
 
 Entity_T = TypeVar('Entity_T', bound=Entity)

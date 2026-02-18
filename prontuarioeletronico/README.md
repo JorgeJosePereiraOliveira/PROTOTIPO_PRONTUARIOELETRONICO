@@ -1,7 +1,7 @@
 <!-- Pronounário Eletrônico - Prototipo -->
 # Prontuário Eletrônico - Protótipo em Clean Architecture
 
-Sistema de Prontuário Eletrônico desenvolvido como protótipo para TCC, implementando os princípios da **Clean Architecture** conforme definido por Robert C. Martin.
+Sistema de Prontuário Eletrônico desenvolvido como protótipo, implementando os princípios da **Clean Architecture** conforme definido por Robert C. Martin.
 
 ## Visão Geral
 
@@ -39,8 +39,53 @@ prontuarioeletronico/
 ├── docker-compose.yaml           # Orquestração
 └── README.md                     # Esta documentação
 ```
+# Detalhes da estrutura do projeto:
+### 1. scr/domain/appontment
+O script **appointment_entity.py** define a entidade de domínio Appointment, que representa uma consulta médica no sistema de prontuário eletrônico. Ele encapsula os principais atributos e regras de negócio de uma consulta, incluindo:
 
-## Princípios de Clean Architecture Aplicados
+- **id**: identificador único da consulta.
+- **patient_id**: referência ao paciente.
+- **professional_id**: referência ao profissional de saúde.
+- **appointment_date**: data e hora da consulta.
+- **reason**: motivo da consulta.
+- **status**: status da consulta (agendada, concluída, cancelada).
+- **notes**: observações adicionais.
+- **created_at**: data de criação do registro.
+- **updated_at**: data de atualização do registro.
+
+A classe fornece propriedades para acessar esses atributos e métodos para:
+- **mark_completed**: Marcar a consulta como concluída.
+- **cancel**: Cancelar a consulta.
+- **reschedule**: Reagendar a consulta.
+- **is_overdue**: Verificar se a consulta está atrasada.
+
+Ela herda de Entity, sugerindo que faz parte de um padrão de entidades do domínio. O objetivo é centralizar as regras e dados de uma consulta médica, facilitando a manutenção e evolução do sistema.
+
+### 2. scr/domain/cinical_record
+O script **rcop_soap.py** define as entidades centrais do **Registro Clínico Orientado por Problemas (RCOP)**, estruturando o prontuário clínico segundo o modelo **Subjective, Objective, Assessment, Plan (SOAP)**. Ele implementa as seguintes classes principais:
+
+- **Problem**: Representa um problema clínico do paciente (diagnóstico ou condição médica que requer monitoramento e tratamento) dentro do sistema RCOP. É o eixo central em tordo do qual as noas SOAP são organizadas. Apresenta os seguintes atributos:
+
+    - **id**: Identificador único para o problema.
+    - **patient_id**: Referência ao paciente.
+    - **description**: descrição clínicqa do problema.
+    - **icd10_code**: Código ICD-10 do problema.
+    - **status**: Active, resolved, archived (ativo, resolvido ou arquivado).
+    - **created_at**: Data e hora de criação.
+    - **updated_at**: Data e hora de atualização.
+    - **métodos para resolver, arquivar e atualizar a descrição do problema**.
+
+- **Subjective**: Representa a parte “Subjetiva” da nota SOAP, contendo queixas do paciente, histórico médico, medicamentos, alergias e data de criação.
+- **Objective**: Representa a parte “Objetiva” da nota SOAP, com sinais vitais, exame físico, resultados laboratoriais e de imagem, e data de criação.
+- **Assessment**: Representa a “Avaliação” (Assessment), incluindo diagnóstico, impressão clínica, diagnósticos diferenciais, problemas relacionados e data de criação.
+- **Plan**: Representa o “Plano” de tratamento, com plano terapêutico, medicamentos, procedimentos, recomendações de seguimento e data de criação.
+
+- **ClinicalRecord**: Representa o registro clínico completo de um atendimento, agregando todas as partes do SOAP, além de informações do paciente, profissional, problema associado, datas, e métodos para atualizar cada componente e verificar se o registro está completo.
+
+Portanto, o script **rcop_soap.py** modela toda a estrutura de um prontuário clínico orientado por problemas, permitindo criar, atualizar e consultar cada parte do registro de forma organizada e seguindo padrões médicos reconhecidos. Ele é fundamental para garantir a integridade, rastreabilidade e padronização dos dados clínicos no sistema.
+
+
+## Princípios de Clean Architecture Aplicados ao projeto
 
 ### 1. Regra da Dependência
 - Dependências sempre apontam para dentro
@@ -56,6 +101,17 @@ prontuarioeletronico/
 - Lógica clínica pode ser testada sem banco de dados ou UI
 - Repositórios são interfaces, implementações são injetáveis
 - Use cases não conhecem frameworks
+
+### Realização de testes do projeto durante o desenvolvimento:
+O comando **python -m prontuarioeletronico.tests** roda todos os testes definidos no arquivo **tests.py** do projeto, com os seguintes detalhes:
+O arquivo **tests.py** contém uma suíte de testes unitários, escritos usando o framework unittest do Python.
+Cada classe de teste (por exemplo, TestAppointment, TestPatientEntity) testa uma parte específica do domínio do sistema, como entidades de paciente, consulta, prontuário clínico, etc.
+Dentro dessas classes, métodos que começam com **test_** verificam funcionalidades específicas, como criação de objetos, métodos de negócio (ex: marcar consulta como concluída, cancelar, reagendar), validação de atributos, entre outros.
+Ao rodar **python -m prontuarioeletronico.tests**, o Python executa todos os métodos de teste definidos nesse arquivo.
+O resultado OK significa que todas as funcionalidades testadas estão funcionando conforme esperado, sem erros ou falhas.
+Portanto, o script **tests.py** é o ponto central de validação automática do projeto. Ele garante que as entidades e regras de negócio implementadas nos outros scripts (como appointment_entity.py) estão corretas e continuam funcionando após alterações no código.
+Logo, sempre que modificar ou adicionar funcionalidades ao sistema, pode (e deve) rodar esse teste para garantir que nada foi quebrado, validando automaticamente o comportamento das principais entidades e regras do seu projeto.
+
 
 ### 4. Independência Tecnológica
 - Trocar banco de dados não afeta regras de negócio
@@ -238,7 +294,7 @@ curl -X POST http://localhost:8000/api/v1/clinical-records/soap \
 
 ## Autor
 
-Desenvolvimento como parte do Trabalho de Conclusão de Curso (TCC) em Engenharia de Software.
+Jorge Oliveira
 
 ---
 

@@ -4,7 +4,7 @@ Patient Domain Entity - Represents a patient/person in the system
 
 from typing import Optional
 from datetime import datetime
-from ...__seedwork.entity import Entity
+from prontuarioeletronico.src.domain.__seedwork.entity import Entity
 
 
 class Patient(Entity):

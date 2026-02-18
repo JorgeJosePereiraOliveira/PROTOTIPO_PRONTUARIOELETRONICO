@@ -6,7 +6,7 @@ medical protocol for problem-oriented clinical documentation.
 
 from typing import List, Optional
 from datetime import datetime
-from ...__seedwork.entity import Entity
+from prontuarioeletronico.src.domain.__seedwork.entity import Entity
 
 
 class Problem(Entity):

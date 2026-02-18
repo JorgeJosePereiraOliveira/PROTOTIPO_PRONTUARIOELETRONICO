@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Arquitetura Limpa (Clean Architecture) I e II
 
 Este repositório contém dois ambientes distintos para a execução dos serviços com `Docker Compose`. A estrutura é organizada em duas pastas:
@@ -67,3 +68,7 @@ docker-compose down
 - Certifique-se de ter o Docker instalado na sua máquina antes de rodar os comandos.
 - Para mais informações sobre o Docker, consulte os tutoriais disponibilizados para a aula.
 - Sinta-se à vontade para consultar o ambiente referencial sempre que tiver dúvidas durante a aula.
+=======
+# PROTOTIPO_PRONTUARIOELETRONICO
+Desenvolvimento e testes de Prontuário Eletrônico
+>>>>>>> ca015f489cc68d11de6acedcdfe9ec5c33481524

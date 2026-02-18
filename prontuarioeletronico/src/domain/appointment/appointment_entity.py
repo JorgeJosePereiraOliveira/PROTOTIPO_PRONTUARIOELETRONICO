@@ -4,7 +4,7 @@ Appointment Domain Entity - Represents a medical appointment
 
 from typing import Optional
 from datetime import datetime
-from ...__seedwork.entity import Entity
+from prontuarioeletronico.src.domain.__seedwork.entity import Entity
 
 
 class Appointment(Entity):
