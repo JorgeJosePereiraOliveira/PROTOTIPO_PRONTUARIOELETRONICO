@@ -28,7 +28,11 @@ class ScheduleAppointmentDTO:
 class ScheduleAppointmentOutputDTO:
     """Data Transfer Object for appointment scheduling output"""
     
-    def __init__(self, appointment_id: str, message: str):
+    def __init__(
+        self, 
+        appointment_id: str, 
+        message: str
+    ):
         self.appointment_id = appointment_id
         self.message = message
 

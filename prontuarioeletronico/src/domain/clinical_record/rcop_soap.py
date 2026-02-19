@@ -39,7 +39,7 @@ class Problem(Entity):
         super().__init__(id)
         self._patient_id = patient_id
         self._description = description
-        self._icd10_code = icd10_code
+        self._icd10_code = icd10_code # optional standardized code for diagnosis
         self._status = status  # active, resolved, archived
         self._created_at = created_at or datetime.now()
         self._updated_at = updated_at or datetime.now()

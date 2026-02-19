@@ -37,9 +37,11 @@ prontuarioeletronico/
 ├── requirements.txt              # Dependências Python
 ├── Dockerfile                    # Conteinerização
 ├── docker-compose.yaml           # Orquestração
+├── tests.py                      # Suíte de testes unitários
 └── README.md                     # Esta documentação
 ```
 # Detalhes da estrutura do projeto:
+## Camada 1 (Entidades)
 ### 1. scr/domain/appontment
 O script **appointment_entity.py** define a entidade de domínio Appointment, que representa uma consulta médica no sistema de prontuário eletrônico. Ele encapsula os principais atributos e regras de negócio de uma consulta, incluindo:
 
@@ -64,7 +66,7 @@ Ela herda de Entity, sugerindo que faz parte de um padrão de entidades do domí
 ### 2. scr/domain/clinical_record
 O script **rcop_soap.py** define as entidades centrais do **Registro Clínico Orientado por Problemas (RCOP)**, estruturando o prontuário clínico segundo o modelo **Subjective, Objective, Assessment, Plan (SOAP)**. Ele implementa as seguintes classes principais:
 
-- **Problem**: Representa um problema clínico do paciente (diagnóstico ou condição médica que requer monitoramento e tratamento) dentro do sistema RCOP. É o eixo central em tordo do qual as notas SOAP são organizadas. Apresenta os seguintes atributos:
+- **Problem**: Representa um problema clínico do paciente (diagnóstico ou condição médica que requer monitoramento e tratamento) dentro do sistema RCOP. É o eixo central em torno do qual as notas SOAP são organizadas. Apresenta os seguintes atributos:
 
     - **id**: Identificador único para o problema.
     - **patient_id**: Referência ao paciente.
@@ -75,14 +77,120 @@ O script **rcop_soap.py** define as entidades centrais do **Registro Clínico Or
     - **updated_at**: Data e hora de atualização.
     - **métodos para resolver, arquivar e atualizar a descrição do problema**.
 
-- **Subjective**: Representa a parte “Subjetiva” da nota SOAP, contendo queixas do paciente, histórico médico, medicamentos, alergias e data de criação.
-- **Objective**: Representa a parte “Objetiva” da nota SOAP, com sinais vitais, exame físico, resultados laboratoriais e de imagem, e data de criação.
-- **Assessment**: Representa a “Avaliação” (Assessment), incluindo diagnóstico, impressão clínica, diagnósticos diferenciais, problemas relacionados e data de criação.
-- **Plan**: Representa o “Plano” de tratamento, com plano terapêutico, medicamentos, procedimentos, recomendações de seguimento e data de criação.
+- **Subjective**: Representa a parte “Subjetiva” da nota SOAP, contendo:
+    - **id**.
+    - **clinical_record_id**.
+    - **Queixas do paciente**.
+    - **Histórico médico**.
+    - **Medicamentos**.
+    - **Alergias que o paciente sofre**.
+    - **Data de criação**.
+- **Objective**: Representa a parte “Objetiva” da nota SOAP, com:
+    - **id**.
+    - **clinical_record_id**.
+    - **Sinais vitais**.
+    - **Exame físico**.
+    - **Resultados laboratoriais**.
+    - **Resultados de imagens**.
+    - **Data de criação**.
+- **Assessment**: Representa a “Avaliação” (Assessment), incluindo:
+    - **id**.
+    - **clinical_record_id**.
+    - **Diagnóstico**.
+    - **Impressão clínica**.
+    - **Diagnósticos diferenciais**.
+    - **Problemas relacionados**.
+    - **Data de criação**.
+- **Plan**: Representa o “Plano” de tratamento, com:
+    - **id**.
+    - **clinical_record_id**.
+    - **Plano terapêutico**.
+    - **Medicamentos**.
+    - **Procedimentos**.
+    - **Recomendações de seguimento e procedimentos futuros**.
+    - **Data de criação**.
 
-- **ClinicalRecord**: Representa o registro clínico completo de um atendimento, agregando todas as partes do SOAP, além de informações do paciente, profissional, problema associado, datas, e métodos para atualizar cada componente e verificar se o registro está completo.
+- **ClinicalRecord**: Representa o registro clínico completo de um atendimento, agregando todas as partes do SOAP:
+    - **id**.
+    - **patient_id**: Informações do paciente.
+    - **professional_id**: Informações do profissional.
+    - **problem_id**: Problema associado.
+    - **encounter_date**: Data do encontro.
+    - **subjective**.
+    - **objective**.
+    - **assessment**.
+    - **plan**.
+    - **created_at**: Data de criação.
+    - **updated_at**: Data de atualização.
+    - **Métodos para atualizar cada componente SOAP e verificar se todos os registros SOAP estão completo**.
 
 Portanto, o script **rcop_soap.py** modela toda a estrutura de um prontuário clínico orientado por problemas, permitindo criar, atualizar e consultar cada parte do registro de forma organizada e seguindo padrões médicos reconhecidos. Ele é fundamental para garantir a integridade, rastreabilidade e padronização dos dados clínicos no sistema.
+### 3. scr/domain/patient
+O script **patient_entity.py** codifica a entidade de domínio paciente. Representa o paciente (pessoa atendida) dentro do sistema. A classe Patient(Entity) representa um paciente no sistema eletrônico de registros de pacientes e encapsula os atributos e regras de negócios seguintes:
+  - **id**: Identificador único do paciente.
+  - **name**: Nome completo do paciente.
+  - **date_of_birth**: Data de nascimento.
+  - **gender**: Sexo (M, F, O, N).
+  - **cpf**: CPF.
+  - **email**: Optional.
+  - **phone**: Optional.
+  - **address**: Optional para pacientes em situação de rua.
+  - **city**: Cidade.
+  - **state**: Estado (UF).
+  - **insurance**: Informações sobre o seguro de saúde ou plano de saúde.
+  - **created_at**: Data/hora de criação do registro.
+  - **updated_at**: Data/hora de atualização do registro.
+  - **Métodos para calcular a idade do paciente em anos, atualizar informação de contato do paciente (email e telefone), atualizar endereço do paciente (endereço, cidade e UF) e atualizar seguro ou plano de saúde do paciente**.
+
+### 4. scr/domain/profissional
+A entidade profissional (**profissional_entity.py**) representa um profissional de saúde no sistema eletrônico. Esta entidade encapsula o código de atributos e as regras de negócio relativo aos profissionais de saúde (médicos, enfermeiros, psicologos, etc.). Os atributos são:
+  - **id**: Identificador ínico do profissional.
+  - **name**: Nome completo do profissional.
+  - **license_number**: Número da licença do profissional.
+  - **specialties**: Lista das especialidades do profissional.
+  - **crm**: CRM number (Conselho Regional de Medicina).
+  - **email**: Email do profissional (Optional).
+  - **phone**: Telefone do profissional (Optional).
+  - **institution**: Instituição ou clinica atual (Optional).
+  - **created_at**: Data/hora de criação do registro (Optional).
+  - **updated_at**: Data/hora de atualização do registro (Optional).
+  - **Métodos para adicionar uma nova especialidade na ista do especialidades do profissional, remover um especialidade da lista, atualizar a instituição atual do profissional e confirmar se o profissional tem uma especialidade específica**.
+
+## Camada 2 (Casos de uso)
+### 1. scr/application/appointment
+O script **schedule_appointment_usecase.py** implementa o caso de uso para **Agendar Consulta**. Ele segue o padrão de arquitetura de "Use Case" (caso de uso), separando regras de negócio da infraestrutura. O script implementa as seguites classes:
+**DTOs (Data Transfer Objects)**:
+- **class ScheduleAppointmentDTO**: Objeto de transferência de dados para agendamento de consulta (recebe dados necessários para agendar uma consulta).
+Os atributos desta classe são:
+    - **patient_id**: Identificador do paciente.
+    - **professional_id**: Identificador do profissional.
+    - **appointment_date**: Data/hora da consulta.
+    - **reason**: Motivo da consulta.
+    - **notes**: Observações adicionais sobre a consulta.
+
+- **class ScheduleAppointmentOutputDTO**: Objeto de transferência de dados para saida de agendamento de consulta. Retorna o resultado do agendamento (id da consulta, mensagem de sucesso).
+Os atributos dessa classe são:
+    - **appointment_id**: Identificador da consulta.
+    - **message**: Mensagem de sucesso (mensagem de saida do agendamento da consulta).
+
+**Classe principal**:
+- **class ScheduleAppointmentUseCase(UseCase[ScheduleAppointmentDTO, ScheduleAppointmentOutputDTO])**:  Herda de UseCase (interface genérica do domínio). Recebe um repositório de consultas (appointment_repository) para persistência. Método execute: valida os dados, cria uma entidade Appointment, persiste no repositório e retorna o resultado. Métodos auxiliares: _validate_input (valida regras de negócio) e _generate_id (gera id único).
+Os atributos dessa classe são:
+    - **appointment_repository**.
+
+Relação com outros scripts
+- **Importações**:
+    - Usa a interface **UseCase** de **use_case_interface.py**, garantindo padronização dos casos de uso.
+    - Usa a entidade **Appointment** de **appointment_entity.py**, representando a consulta.
+    - O repositório passado ao construtor deve implementar a interface de repositório de consultas, provavelmente definida em **appointment_repository_interface.py**.
+- **Fluxo de dados**:
+    - O caso de uso é chamado por camadas superiores (ex: API, interface gráfica), recebe dados via DTO, valida, cria a entidade, persiste e retorna o resultado.
+    - O repositório pode ser implementado na camada de infraestrutura, por exemplo, usando SQLAlchemy (**infra/appointment/sqlalchemy/**).
+- **Integração**:
+    - O script é parte da camada de aplicação, conectando domínio (entidades, regras) e infraestrutura (persistência).
+    - Pode ser utilizado por roteadores de API (**infra/api/routers/**) para expor endpoints de agendamento.
+
+
 
 
 ## Princípios de Clean Architecture Aplicados ao projeto
