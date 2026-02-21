@@ -27,7 +27,8 @@ prontuarioeletronico/
 │   ├── application/              # Camada 2: Casos de Uso
 │   │   ├── patient/              # Registrar paciente
 │   │   ├── clinical_record/      # Registrar SOAP, Criar problema
-│   │   └── appointment/          # Agendar consulta
+│   │   ├── appointment/          # Agendar consulta
+│   │   └── professional/         # regiatrar profissionai
 │   │
 │   └── infra/                    # Camadas 3 & 4: Adaptadores e Drivers
 │       ├── api/                  # Controllers e Routers (FastAPI)
@@ -174,9 +175,14 @@ Os atributos dessa classe são:
     - **message**: Mensagem de sucesso (mensagem de saida do agendamento da consulta).
 
 **Classe principal**:
-- **class ScheduleAppointmentUseCase(UseCase[ScheduleAppointmentDTO, ScheduleAppointmentOutputDTO])**:  Herda de UseCase (interface genérica do domínio). Recebe um repositório de consultas (appointment_repository) para persistência. Método execute: valida os dados, cria uma entidade Appointment, persiste no repositório e retorna o resultado. Métodos auxiliares: _validate_input (valida regras de negócio) e _generate_id (gera id único).
+- **class ScheduleAppointmentUseCase(UseCase[ScheduleAppointmentDTO, ScheduleAppointmentOutputDTO])**:  Herda de UseCase (interface genérica do domínio). Recebe um repositório de consultas (appointment_repository) para persistência. Método execute: valida os dados, cria uma entidade Appointment, persiste no repositório e retorna o resultado. Métodos auxiliares: _validate_input (valida regras de negócio) e _generate_id (gera id único). Assim, na sequência:
+    - **Use Case para agendar nova consulta**.
+    - **Executar o use case da nova consulta**: Validate input; Create appointment entity; Persist the appointment.
+    - **Valida entrada (imput) de acordo com as regras de negócio**.
+    - **Gera um ID único**.
+
 Os atributos dessa classe são:
-    - **appointment_repository**.
+- **appointment_repository**.
 
 Relação com outros scripts
 - **Importações**:
@@ -190,7 +196,38 @@ Relação com outros scripts
     - O script é parte da camada de aplicação, conectando domínio (entidades, regras) e infraestrutura (persistência).
     - Pode ser utilizado por roteadores de API (**infra/api/routers/**) para expor endpoints de agendamento.
 
+### 2. scr/application/clinical_record
+### **2.1. scr/application/clinical_record/create_problem_usecase.py**
+Este script implementa um Use Case para Criar/Regiatrar um novo ploblema clínico, na seguinte sequência:
+- **class CreateProblemDTO**: Objeto de transferência de dados (DTO) para criar um novo problema clínico.
+- **class CreateProblemOutputDTO**: Objeto de transferência de dados para criar uma saída (um output de mensagem) do novo problema clínico criado.
+- **class CreateProblemUseCase(UseCase[CreateProblemDTO, CreateProblemOutputDTO])**: Use Case para criar um novo problema clínico no sistema RCOP. Este caso de uso lida com o registro de um novo problema de saúde que será gastreado e monitorado por meio de notas SOAP. Essa classe executa o use case para criar um novo problema clínico do seguinte modo: Argumentos: **input_dto**: Entrada de daods para um novo problema; Retornos: **CreateProblemOutputDTO**: Resultado com o ID do novo problema clínico criado. Logo, os argumentos dessa classe **valida imput_dto**, **cria a entidade problema** (gera id, patient_id, description, icd10_code, status), **perciste o novo  problema clínico criado** e retorna a mensagem **problema clínico criao com sucesso**. Por fim, a classe valida o imput de acordo com as regras de negócio e garante um ID único.
+### **2.2. scr/application/clinical_record/register_soap_usecase.py**
+Este script implementa um Use Case para registrar uma nova nota clínica SOAP. Cria um registro clínico completo seguindo a estrutura SOAP, de acordo com a seguinte estrutura:
+- **class RegisterSOAPDTO**: Implementa o objeto de transferência de dados (DTO) para registrar uma nota SOAP, com os seguintes argumentos:
+    - **patient_id**.
+    - **professional_id**.
+    - **problem_id**.
+    - **encounter_date**: Data/hora da consulta.
+    - **patient_complaint**.
+    - **vital_signs**: Sinais vitais.
+    - **physical_examination**.
+    - **diagnosis**.
+    - **treatment_plan**.
+    - **medical_history**: Histórico médico (Optional),
+    - **lab_results**.
+    - **medications**.
+    - **allergies**.
+    - **clinical_impression**.
+- **class RegisterSOAPOutputDTO**: Implementa objeto de transferência de dados para saída (autput) de registro de SOAP.
+- **class RegisterSOAPUseCase(UseCase[RegisterSOAPDTO, RegisterSOAPOutputDTO])**: Caso de uso para registrar uma nova nota clínica SOAP. Esse Use Case orquestra a criação de um registro clínico completo com todos os compontentes SOAP (Subjective, Objective, Assessment, Plan), valida imput DTO, cria componentes SOAP (***Subjective*: id; clinical_record_id, que será atualizado quando o registro for criado; patient_complaint; medical_history; medications; allergies - *Objective*: id; clinical_record_id; vital_signs; physical_examination; lab_results - *Assessment*: id; clinical_record_id; diagnosis; clinical_impression; related_problems - *Plan*: id; clinical_record_id; treatment_plan; medications**), cria o registro clínico (**id; patient_id; professional_id; problem_id; encounter_date; subjective; objective; assessment; plan**), perciste o registro (retorna a mensagem 'SOAP clinical record registered successfully'), valida entrada de dados de acordo com as regras de negócio, gerar um ID único. Essa classe implementa:
+- **Executa o use case para registro da nota SOAP**.
+- **Argumento input_dto**: Entrada de dados (Input data) contendo todos os componentes SOAP.
+- **Retono: RegisterSOAPOutputDTO**. Resulta com o ID do registro clínico criado.
+- **Exceção**: Se a validação ou operação do repositório falharem.
 
+### 3. scr/application/patient
+O script **register_patient_usecase**
 
 
 ## Princípios de Clean Architecture Aplicados ao projeto

@@ -6,7 +6,7 @@ Entry point for the Prontuário Eletrônico API
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from .config import create_app
-from .routers import patient_routers, clinical_record_routers
+from .routers import patient_routers, clinical_record_routers, professional_routers
 
 # Create the FastAPI application
 app = create_app()
@@ -14,6 +14,7 @@ app = create_app()
 # Include routers
 app.include_router(patient_routers.router)
 app.include_router(clinical_record_routers.router)
+app.include_router(professional_routers.router)
 
 
 @app.get("/")
