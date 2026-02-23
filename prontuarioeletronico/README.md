@@ -143,8 +143,8 @@ O script **patient_entity.py** codifica a entidade de domínio paciente. Represe
   - **updated_at**: Data/hora de atualização do registro.
   - **Métodos para calcular a idade do paciente em anos, atualizar informação de contato do paciente (email e telefone), atualizar endereço do paciente (endereço, cidade e UF) e atualizar seguro ou plano de saúde do paciente**.
 
-### 4. scr/domain/profissional
-A entidade profissional (**profissional_entity.py**) representa um profissional de saúde no sistema eletrônico. Esta entidade encapsula o código de atributos e as regras de negócio relativo aos profissionais de saúde (médicos, enfermeiros, psicologos, etc.). Os atributos são:
+### 4. scr/domain/professional
+A entidade profissional (**professional_entity.py**) representa um profissional de saúde no sistema eletrônico. Esta entidade encapsula o código de atributos e as regras de negócio relativo aos profissionais de saúde (médicos, enfermeiros, psicologos, etc.). Os atributos são:
   - **id**: Identificador ínico do profissional.
   - **name**: Nome completo do profissional.
   - **license_number**: Número da licença do profissional.
