@@ -5,9 +5,6 @@ Professional Domain Entity - Represents a healthcare professional
 from typing import Optional, List
 from datetime import datetime
 from prontuarioeletronico.src.domain.__seedwork.entity import Entity
-#from prontuarioeletronico.src.__seedwork.entity import Entity
-#from ..__seedwork.entity import Entity
-#from ...__seedwork.entity import Entity
 
 
 class Professional(Entity):
