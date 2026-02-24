@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[0]
 sys.path.insert(0, str(ROOT.parents[0]))
 
-from src.domain.__seedwork.entity import Entity
+from prontuarioeletronico.src.domain.__seedwork.entity import Entity
 
 
 def test_equality_same_id():

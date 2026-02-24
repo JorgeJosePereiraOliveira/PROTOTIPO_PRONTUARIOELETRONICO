@@ -245,9 +245,13 @@ O script **register_patient_usecase**
 ### 3. Testabilidade
 - Lógica clínica pode ser testada sem banco de dados ou UI
 - Repositórios são interfaces, implementações são injetáveis
-- Use cases não conhecem frameworks
+- Use cases não conhecem frameworks.
+
+A testabilidade do projeto é realizada em três planos. Essa separação facilita manutenção, execução seletiva e entendimento do escopo de cada teste, além de seguir boas práticas de organização em projetos profissionais.
 
 ### Realização de testes do projeto durante o desenvolvimento:
+### 3.1. **prontuarioeletronico/tests.py**:
+Geralmente reúne testes unitários ou de integração para módulos específicos do pacote prontuarioeletronico. Pode ser usado para rodar rapidamente todos os testes internos do pacote, facilitando a manutenção e o desenvolvimento incremental.
 O comando **python -m prontuarioeletronico.tests** roda todos os testes definidos no arquivo **tests.py** do projeto, com os seguintes detalhes:
 O arquivo **tests.py** contém uma suíte de testes unitários, escritos usando o framework unittest do Python.
 Cada classe de teste (por exemplo, TestAppointment, TestPatientEntity) testa uma parte específica do domínio do sistema, como entidades de paciente, consulta, prontuário clínico, etc.
@@ -256,6 +260,24 @@ Ao rodar **python -m prontuarioeletronico.tests**, o Python executa todos os mé
 O resultado OK significa que todas as funcionalidades testadas estão funcionando conforme esperado, sem erros ou falhas.
 Portanto, o script **tests.py** é o ponto central de validação automática do projeto. Ele garante que as entidades e regras de negócio implementadas nos outros scripts (como appointment_entity.py) estão corretas e continuam funcionando após alterações no código.
 Logo, sempre que modificar ou adicionar funcionalidades ao sistema, pode (e deve) rodar esse teste para garantir que nada foi quebrado, validando automaticamente o comportamento das principais entidades e regras do seu projeto.
+### 3.2. **prontuarioeletronico\run_tests.py**:
+Normalmente é um script de orquestração, que pode rodar todos os testes do pacote prontuarioeletronico, incluindo testes unitários, de integração e até de aceitação.
+Pode incluir lógica extra, como configuração de ambiente, geração de relatórios ou execução de testes em sequência.
+O comando para rodar esse teste é **python -m prontuarioeletronico.run_tests**. Ele verifica testes relacionados à classe Entity, que é a base para as entidades do domínio do seu projeto. Na atual fase do projeto, verifica-se:
+- **test_equality_same_id**: verifica igualdade de entidades com o mesmo id.
+- **test_inequality_different_id**: verifica desigualdade de entidades com ids diferentes.
+- **test_none_id_equal**: verifica igualdade quando o id é None.
+- **test_hash_with_id**: verifica o hash da entidade com id.
+- **test_equal_entities_same_hash**: verifica se entidades iguais têm o mesmo hash.
+- **test_repr**: verifica a representação textual (repr) da entidade.
+- **test_id_setter**: verifica o setter do id.
+- **test_subclass**: verifica comportamento em subclasses de Entity.
+
+Portanto, todos os testes são focados na classe base Entity, garantindo o correto funcionamento de igualdade, hash, representação e herança das entidades do domínio.
+
+### 3.3. **run_all_application_tests.py**:
+Fica na raiz do projeto e serve para rodar todos os testes relevantes da camada application (e, por extensão, do domínio), incluindo diferentes módulos (professional, patient, appointment, etc.). Útil para garantir que toda a lógica de negócio da aplicação está funcionando, independente da camada de infraestrutura. Execução global dos testes da aplicação, abrangendo múltiplos módulos/camadas.
+O comando para redar esse teste é **.venv\Scripts\python.exe run_all_application_tests.py**.
 
 
 ### 4. Independência Tecnológica
