@@ -1,9 +1,13 @@
+
+
+
 import unittest
 from prontuarioeletronico.src.application.professional.register_professional_usecase import RegisterProfessionalUseCase
 from prontuarioeletronico.src.application.professional.update_professional_usecase import UpdateProfessionalUseCase
 from prontuarioeletronico.src.application.professional.find_professional_usecase import FindProfessionalUseCase
 from prontuarioeletronico.src.application.professional.delete_professional_usecase import DeleteProfessionalUseCase
 from prontuarioeletronico.src.domain.professional.professional_entity import Professional
+from typing import List
 
 class FakeProfessionalRepository:
     def __init__(self):
@@ -20,17 +24,29 @@ class FakeProfessionalRepository:
 class TestProfessionalUseCases(unittest.TestCase):
     def setUp(self):
         self.repo = FakeProfessionalRepository()
-        self.professional_data = {'id': '1', 'name': 'Dr. Test'}
+        self.professional_data = {
+            'id': '1',
+            'name': 'Dr. Test',
+            'license_number': '12345',
+            'specialties': ['Cardiology'],
+            'crm': 'CRM123',
+            'email': 'dr.test@example.com',
+            'phone': '123456789',
+            'institution': 'Hospital X'
+        }
     def test_register_professional(self):
         usecase = RegisterProfessionalUseCase(self.repo)
         professional = usecase.execute(self.professional_data)
         self.assertEqual(professional.name, 'Dr. Test')
+        self.assertEqual(professional.license_number, '12345')
+        self.assertEqual(professional.specialties, ['Cardiology'])
     def test_update_professional(self):
         usecase = RegisterProfessionalUseCase(self.repo)
         professional = usecase.execute(self.professional_data)
         update_usecase = UpdateProfessionalUseCase(self.repo)
-        updated = update_usecase.execute('1', {'name': 'Dr. Updated'})
+        updated = update_usecase.execute('1', {'name': 'Dr. Updated', 'crm': 'CRM999'})
         self.assertEqual(updated.name, 'Dr. Updated')
+        self.assertEqual(updated.crm, 'CRM999')
     def test_find_professional(self):
         usecase = RegisterProfessionalUseCase(self.repo)
         professional = usecase.execute(self.professional_data)
