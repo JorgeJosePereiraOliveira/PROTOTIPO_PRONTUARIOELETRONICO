@@ -34,6 +34,7 @@ prontuarioeletronico/
 │       ├── api/                  # Controllers e Routers (FastAPI)
 │       ├── patient/              # Repositório Patient
 │       ├── clinical_record/      # Repositório Clinical Record
+│       ├── professional/         # Repositório Professional
 │       └── appointment/          # Repositório Appointment
 ├── requirements.txt              # Dependências Python
 ├── Dockerfile                    # Conteinerização
@@ -247,6 +248,22 @@ O script **register_patient_usecase**
 - Lógica clínica pode ser testada sem banco de dados ou UI
 - Repositórios são interfaces, implementações são injetáveis
 - Use cases não conhecem frameworks.
+
+### Contrato de Entidades (regra explícita)
+- A classe base `Entity` define igualdade por identidade de negócio (`id`) quando o `id` está preenchido.
+- Se **qualquer uma** das entidades comparadas tiver `id=None`, a igualdade passa a ser por identidade de instância (`self is other`).
+- Essa regra evita falsos positivos de igualdade entre entidades transitórias (ainda não persistidas) e mantém consistência com hashing em coleções (`set`/`dict`).
+
+### Atualizações recentes de testabilidade (infra + suíte global)
+- **Base SQLAlchemy compartilhado**: os modelos ORM da camada infra usam um único `Base` central (`src/infra/infra_sqlalchemy/base.py`), garantindo metadata única e criação consistente de tabelas/FKs nos testes.
+- **Fixtures sem `clear_mappers()`**: o teardown dos testes de repositório não desmonta mais os mapeamentos ORM, evitando efeitos colaterais entre testes e erros de instrumentação.
+- **Padrão de atualização compatível com domínio**: os testes de `update` respeitam a imutabilidade parcial das entidades (sem setters diretos indevidos), usando métodos de domínio ou nova instância de entidade para representar estado atualizado.
+- **Contrato de repositórios alinhado**: os testes seguem os métodos reais de cada contrato de repositório (`add`/`update`/`delete`/`find_by_id`, e `save` onde aplicável na interface específica).
+- **Execução recomendada da suíte**:
+  - Infra: `./.venv/Scripts/python -m pytest prontuarioeletronico/src/infra/`
+  - Global: `./.venv/Scripts/python -m pytest prontuarioeletronico/src/`
+
+Status atual da validação após as correções: **suíte completa em verde (23 passed)**.
 
 A testabilidade do projeto é realizada em três planos. Essa separação facilita manutenção, execução seletiva e entendimento do escopo de cada teste, além de seguir boas práticas de organização em projetos profissionais.
 

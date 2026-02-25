@@ -5,10 +5,10 @@ SQLAlchemy Repository Implementation for Clinical Record
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
-from ....domain.clinical_record.rcop_soap import (
+from prontuarioeletronico.src.domain.clinical_record.rcop_soap import (
     ClinicalRecord, Subjective, Objective, Assessment, Plan, Problem
 )
-from ....domain.__seedwork.repository_interface import RepositoryInterface
+from prontuarioeletronico.src.domain.__seedwork.repository_interface import RepositoryInterface
 from .clinical_record_model import (
     ClinicalRecordModel, ProblemModel, SubjectiveModel, ObjectiveModel,
     AssessmentModel, PlanModel
@@ -85,6 +85,10 @@ class ClinicalRecordRepository(RepositoryInterface[ClinicalRecord]):
         if not record_model:
             raise ValueError(f"Clinical Record {entity.id} not found")
         
+        record_model.patient_id = entity.patient_id
+        record_model.professional_id = entity.professional_id
+        record_model.problem_id = entity.problem_id
+        record_model.encounter_date = entity.encounter_date
         record_model.updated_at = datetime.now()
         self._db.commit()
     

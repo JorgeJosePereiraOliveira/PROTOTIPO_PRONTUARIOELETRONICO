@@ -3,10 +3,8 @@ SQLAlchemy Model for Appointment
 """
 
 from sqlalchemy import Column, String, DateTime, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-
-Base = declarative_base()
+from prontuarioeletronico.src.infra.infra_sqlalchemy.base import Base
 
 
 class AppointmentModel(Base):

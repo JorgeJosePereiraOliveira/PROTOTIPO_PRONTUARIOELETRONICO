@@ -7,8 +7,8 @@ This is part of the Infrastructure layer.
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
-from ....domain.professional.professional_entity import Professional
-from ....domain.professional.professional_repository_interface import ProfessionalRepositoryInterface
+from prontuarioeletronico.src.domain.professional.professional_entity import Professional
+from prontuarioeletronico.src.domain.professional.professional_repository_interface import ProfessionalRepositoryInterface
 from .professional_model import ProfessionalModel
 
 class ProfessionalRepository(ProfessionalRepositoryInterface):

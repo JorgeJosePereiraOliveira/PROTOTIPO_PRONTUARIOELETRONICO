@@ -5,11 +5,9 @@ It adapts the domain entity to the database schema.
 """
 
 from sqlalchemy import Column, String, DateTime, Text
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY
 from datetime import datetime
-
-Base = declarative_base()
+from prontuarioeletronico.src.infra.infra_sqlalchemy.base import Base
 
 
 class ProfessionalModel(Base):

@@ -7,8 +7,8 @@ This is part of the Infrastructure layer.
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
-from ....domain.patient.patient_entity import Patient
-from ....domain.__seedwork.repository_interface import RepositoryInterface
+from prontuarioeletronico.src.domain.patient.patient_entity import Patient
+from prontuarioeletronico.src.domain.__seedwork.repository_interface import RepositoryInterface
 from .patient_model import PatientModel
 
 

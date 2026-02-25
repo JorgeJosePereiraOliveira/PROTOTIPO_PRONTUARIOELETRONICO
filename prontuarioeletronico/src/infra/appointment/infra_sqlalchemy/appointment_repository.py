@@ -5,8 +5,8 @@ SQLAlchemy Repository Implementation for Appointment
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
-from ....domain.appointment.appointment_entity import Appointment
-from ....domain.__seedwork.repository_interface import RepositoryInterface
+from prontuarioeletronico.src.domain.appointment.appointment_entity import Appointment
+from prontuarioeletronico.src.domain.__seedwork.repository_interface import RepositoryInterface
 from .appointment_model import AppointmentModel
 
 

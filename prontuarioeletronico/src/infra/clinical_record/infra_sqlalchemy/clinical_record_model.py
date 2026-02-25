@@ -4,10 +4,8 @@ SQLAlchemy Model for Clinical Record (RCOP/SOAP)
 
 from sqlalchemy import Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-
-Base = declarative_base()
+from prontuarioeletronico.src.infra.infra_sqlalchemy.base import Base
 
 
 class ClinicalRecordModel(Base):

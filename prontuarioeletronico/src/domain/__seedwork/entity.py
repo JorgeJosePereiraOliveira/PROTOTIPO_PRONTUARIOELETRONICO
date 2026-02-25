@@ -8,7 +8,8 @@ implement hashing for use in sets/dicts.
 
 Notes / recommendations:
 - Equality (`__eq__`) is based on the `id` value: two entities with the
-  same `id` are considered equal.
+    same `id` are considered equal. If either entity has `id=None`, equality
+    falls back to instance identity (`self is other`).
 - Hashing (`__hash__`) uses the `id` when present. If `id` is `None`, the
   instance identity (`id(self)`) is used instead. Mutating the `id` after
   the object has been placed in a hashed collection (set/dict key) may
@@ -32,7 +33,8 @@ class Entity(ABC):
     Behavior summary
     - `id` property: getter/setter for the identity.
     - `__eq__`: two `Entity` instances are equal when they are both
-      instances of `Entity` (or subclasses) and their `_id` values are equal.
+            instances of `Entity` (or subclasses) and their `_id` values are equal.
+            If either `_id` is `None`, equality is based on instance identity.
     - `__hash__`: when `_id` is truthy, `hash(_id)` is used. Otherwise the
       object's memory id is used to provide a stable (per-instance) hash.
 
@@ -71,8 +73,9 @@ class Entity(ABC):
         """Equality based on entity identity.
 
         Two entities are equal when both are `Entity` instances and their
-        `_id` values compare equal. If `other` is not an Entity, return
-        `False`.
+        `_id` values compare equal. If either `_id` is `None`, equality uses
+        instance identity (`self is other`). If `other` is not an Entity,
+        return `False`.
         
         Args:
             other: The object to compare with.
@@ -82,6 +85,10 @@ class Entity(ABC):
         """
         if not isinstance(other, Entity):
             return False
+
+        if self._id is None or other._id is None:
+            return self is other
+
         return self._id == other._id
 
     def __hash__(self):

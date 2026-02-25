@@ -1,11 +1,4 @@
-import sys
-from pathlib import Path
-
-# Ensure the package `src` is importable when tests run from this file
-ROOT = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(ROOT))
-
-from src.domain.__seedwork.entity import Entity
+from prontuarioeletronico.src.domain.__seedwork.entity import Entity
 
 
 def test_equality_same_id():
