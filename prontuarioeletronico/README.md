@@ -38,6 +38,7 @@ prontuarioeletronico/
 ├── requirements.txt              # Dependências Python
 ├── Dockerfile                    # Conteinerização
 ├── docker-compose.yaml           # Orquestração
+├── run_tests.py                  # Roda todos os testes
 ├── tests.py                      # Suíte de testes unitários
 └── README.md                     # Esta documentação
 ```
