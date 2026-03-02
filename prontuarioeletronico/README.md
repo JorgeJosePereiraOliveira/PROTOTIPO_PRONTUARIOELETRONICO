@@ -12,6 +12,32 @@ Este projeto demonstra a implementação de um Prontuário Eletrônico (Sistema 
 3. **Adaptadores (Interface)** - Controllers REST, DTOs, Presenters
 4. **Frameworks & Drivers** - FastAPI, SQLAlchemy, Banco de Dados
 
+## Backlog Executivo (Resumo)
+
+Este projeto possui um backlog técnico priorizado para evolução do protótipo rumo a uma arquitetura de microsserviços cloud-native, mantendo os princípios da Clean Architecture e os requisitos clínicos RCOP/SOAP.
+
+### Objetivo executivo
+- Evoluir de uma base funcional para uma plataforma escalável, segura e auditável, com suporte a CI/CD, Kubernetes e MLOps.
+
+### Prioridades estratégicas
+- **P0 (Crítico):** decomposição em microsserviços (Auth, Patient, EMR, Scheduling, Audit), segurança/LGPD, Docker por serviço, Kubernetes, pipeline CI/CD.
+- **P1 (Alto):** observabilidade ponta a ponta, AI Service desacoplado, governança MLOps e evidências experimentais para resultados científicos.
+- **P2 (Médio):** otimizações operacionais, redução de custo e melhorias evolutivas de produto.
+
+### Roadmap macro (8 sprints)
+- **Sprints 1-2:** governança arquitetural, Auth/Patient, baseline CI.
+- **Sprints 3-4:** EMR/Scheduling/Audit + qualificação RCOP/SOAP + segurança LGPD.
+- **Sprints 5-6:** cadeia Docker segura + orquestração Kubernetes com autoscaling/self-healing.
+- **Sprints 7-8:** observabilidade avançada + AI Service/MLOps + consolidação de métricas e evidências para publicação.
+
+### Entregáveis esperados
+- Serviços independentes com contratos estáveis.
+- Deploy contínuo e reprodutível com rollback seguro.
+- Monitoramento técnico e clínico com SLOs.
+- Evidências de conformidade e desempenho alinhadas ao estudo.
+
+📄 **Backlog técnico completo e detalhado:** [README_BACKLOG_TECNICO.md](README_BACKLOG_TECNICO.md)
+
 ## Estrutura do Projeto
 
 ```
