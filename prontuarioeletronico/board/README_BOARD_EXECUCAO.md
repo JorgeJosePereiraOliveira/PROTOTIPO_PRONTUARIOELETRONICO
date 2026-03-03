@@ -2,6 +2,9 @@
 
 Este diretório contém o board operacional do backlog técnico em formato executável.
 
+## Navegação rápida
+- Checklist de entrada em operação (go-live): [CHECKLIST_GO_LIVE_BOARD.md](CHECKLIST_GO_LIVE_BOARD.md)
+
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:
   - épico
