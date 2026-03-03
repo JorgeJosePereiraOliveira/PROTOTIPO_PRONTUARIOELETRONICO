@@ -12,26 +12,23 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - dependências
   - responsável sugerido
   - critério de aceite
+- `board_backlog_github_projects.csv` -> versão **normalizada para importação no GitHub Projects (VS Code + GitHub)** com colunas compatíveis: `Title`, `Body`, `Status`, `Labels`, `Repository`.
+- `board_backlog_github_issues_ready.csv` -> versão para **importação de Issues** com colunas: `Title`, `Body`, `Labels`, `Assignees`, `Milestone`, `Repository`.
 
 ---
 
 ## 1) Como usar no GitHub Projects
 
 1. Criar um Project (Table) no repositório/organização.
-2. Importar CSV usando `board_backlog_executavel.csv`.
-3. Mapear colunas:
-   - `Story` -> Title
-   - `Descricao` -> Description
-   - `Status` -> Status
-   - `Prioridade` -> Priority (single select)
-   - `SP` -> Estimate (number)
-   - `Sprint` -> Iteration
-   - `Responsavel_Sugerido` -> Assignee
-   - `Epic` -> Label (ou campo custom)
-   - `Dependencias` -> campo texto "Depends on"
-4. Criar labels para cada `Epic`.
+2. Importar CSV usando `board_backlog_github_projects.csv`.
+3. O campo `Repository` já está configurado para `JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO`.
+4. Importar em modo draft item ou issue (conforme configuração do projeto).
 5. Criar automações de status:
    - Todo -> In Progress -> Done
+
+Observação: SP, dependências e responsável sugerido já estão descritos no `Body` de cada item e também em labels (`sp:*`, `priority:*`, `sprint:*`, `epic:*`).
+
+Para criação prévia de Issues (antes de sincronizar com o Projects), utilize `board_backlog_github_issues_ready.csv`.
 
 ---
 
