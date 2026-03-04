@@ -2,6 +2,8 @@
 
 Microsserviço de autenticação e autorização (JWT + RBAC) iniciado a partir do template ARC-02.
 
+Persistência de usuários via SQLAlchemy.
+
 ## Estrutura
 
 ```text
@@ -43,3 +45,5 @@ uvicorn src.auth.infra.api.main:app --reload --port 8001
 ## Configuração
 
 - Variável opcional de ambiente para JWT: `AUTH_JWT_SECRET`
+- Variável opcional de ambiente para banco: `AUTH_DATABASE_URL`
+	- padrão: `sqlite:///./auth.db`

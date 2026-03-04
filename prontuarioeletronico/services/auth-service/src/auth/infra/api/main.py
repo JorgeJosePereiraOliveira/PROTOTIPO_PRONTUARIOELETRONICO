@@ -11,8 +11,9 @@ from ...application.auth.authorize_role_usecase import (
     AuthorizeRoleInputDTO,
     AuthorizeRoleUseCase,
 )
-from ..auth.in_memory_user_repository import InMemoryUserRepository
+from ..auth.database import SessionLocal, init_database
 from ..auth.jwt_token_service import JwtTokenService
+from ..auth.sqlalchemy_user_repository import SqlAlchemyUserRepository
 from ..auth.sha256_password_hasher import Sha256PasswordHasher
 
 
@@ -30,7 +31,9 @@ class LoginRequest(BaseModel):
 
 JWT_SECRET = os.getenv("AUTH_JWT_SECRET", "dev-secret-change-me")
 
-_user_repository = InMemoryUserRepository()
+init_database()
+_db_session = SessionLocal()
+_user_repository = SqlAlchemyUserRepository(_db_session)
 _password_hasher = Sha256PasswordHasher()
 _token_service = JwtTokenService(secret_key=JWT_SECRET)
 _authenticate_user_usecase = AuthenticateUserUseCase(

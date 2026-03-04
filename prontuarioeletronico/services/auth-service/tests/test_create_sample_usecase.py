@@ -1,3 +1,6 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from src.auth.application.auth.authenticate_user_usecase import (
     AuthenticateUserInputDTO,
     AuthenticateUserUseCase,
@@ -6,13 +9,44 @@ from src.auth.application.auth.authorize_role_usecase import (
     AuthorizeRoleInputDTO,
     AuthorizeRoleUseCase,
 )
-from src.auth.infra.auth.in_memory_user_repository import InMemoryUserRepository
 from src.auth.infra.auth.jwt_token_service import JwtTokenService
+from src.auth.infra.auth.sqlalchemy_base import Base
+from src.auth.infra.auth.sqlalchemy_models import UserModel
+from src.auth.infra.auth.sqlalchemy_user_repository import SqlAlchemyUserRepository
 from src.auth.infra.auth.sha256_password_hasher import Sha256PasswordHasher
 
 
+def _build_sqlalchemy_repository() -> SqlAlchemyUserRepository:
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(bind=engine)
+    session_factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    session = session_factory()
+
+    hasher = Sha256PasswordHasher()
+    session.add_all(
+        [
+            UserModel(
+                id="u-admin",
+                username="admin",
+                password_hash=hasher.hash("admin123"),
+                role="admin",
+                active=True,
+            ),
+            UserModel(
+                id="u-prof",
+                username="profissional",
+                password_hash=hasher.hash("prof123"),
+                role="profissional",
+                active=True,
+            ),
+        ]
+    )
+    session.commit()
+    return SqlAlchemyUserRepository(session)
+
+
 def test_authenticate_user_success():
-    repository = InMemoryUserRepository()
+    repository = _build_sqlalchemy_repository()
     hasher = Sha256PasswordHasher()
     token_service = JwtTokenService(secret_key="test-secret")
     use_case = AuthenticateUserUseCase(repository, hasher, token_service)
@@ -27,7 +61,7 @@ def test_authenticate_user_success():
 
 
 def test_authenticate_user_invalid_credentials():
-    repository = InMemoryUserRepository()
+    repository = _build_sqlalchemy_repository()
     hasher = Sha256PasswordHasher()
     token_service = JwtTokenService(secret_key="test-secret")
     use_case = AuthenticateUserUseCase(repository, hasher, token_service)
