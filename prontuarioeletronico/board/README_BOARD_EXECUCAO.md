@@ -4,6 +4,7 @@ Este diretório contém o board operacional do backlog técnico em formato execu
 
 ## Navegação rápida
 - Checklist de entrada em operação (go-live): [CHECKLIST_GO_LIVE_BOARD.md](CHECKLIST_GO_LIVE_BOARD.md)
+- Relatório final de fechamento da execução: [RELATORIO_FECHAMENTO_EXECUCAO_BOARD.md](RELATORIO_FECHAMENTO_EXECUCAO_BOARD.md)
 
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:
