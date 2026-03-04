@@ -9,6 +9,8 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - [ADR-001-clean-architecture.md](ADR-001-clean-architecture.md)
   - [CONTEXT_MAP.md](CONTEXT_MAP.md)
   - [ARQUITETURA_BASELINE.md](ARQUITETURA_BASELINE.md)
+- Entrega da ARC-02:
+  - [ARC-02_TEMPLATE_MICROSSERVICO.md](ARC-02_TEMPLATE_MICROSSERVICO.md)
 
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:
@@ -93,3 +95,13 @@ Para encerramento técnico da issue #1 (ARC-01), utilizar como evidência mínim
 - ADR aprovado: `ADR-001-clean-architecture.md`
 - Mapa de contexto publicado: `CONTEXT_MAP.md`
 - Baseline e checklist de conformidade: `ARQUITETURA_BASELINE.md`
+
+---
+
+## 7) Evidência de conclusão da ARC-02
+
+Para encerramento técnico da ARC-02, utilizar como evidência mínima:
+
+- Entrega formal da issue: `ARC-02_TEMPLATE_MICROSSERVICO.md`
+- Gerador de serviço: `templates/create_microservice.py`
+- Guia de uso e convenções: `templates/README_TEMPLATE_MICROSSERVICO.md`
