@@ -11,10 +11,10 @@ from ...application.auth.authorize_role_usecase import (
     AuthorizeRoleInputDTO,
     AuthorizeRoleUseCase,
 )
+from ..auth.bcrypt_password_hasher import BcryptPasswordHasher
 from ..auth.database import SessionLocal, init_database
 from ..auth.jwt_token_service import JwtTokenService
 from ..auth.sqlalchemy_user_repository import SqlAlchemyUserRepository
-from ..auth.sha256_password_hasher import Sha256PasswordHasher
 
 
 app = FastAPI(
@@ -29,12 +29,18 @@ class LoginRequest(BaseModel):
     password: str
 
 
-JWT_SECRET = os.getenv("AUTH_JWT_SECRET", "dev-secret-change-me")
+JWT_SECRET = os.getenv("AUTH_JWT_SECRET")
+APP_ENV = os.getenv("APP_ENV", "development")
+
+if not JWT_SECRET:
+    raise RuntimeError(
+        f"AUTH_JWT_SECRET is required for environment '{APP_ENV}'"
+    )
 
 init_database()
 _db_session = SessionLocal()
 _user_repository = SqlAlchemyUserRepository(_db_session)
-_password_hasher = Sha256PasswordHasher()
+_password_hasher = BcryptPasswordHasher()
 _token_service = JwtTokenService(secret_key=JWT_SECRET)
 _authenticate_user_usecase = AuthenticateUserUseCase(
     user_repository=_user_repository,

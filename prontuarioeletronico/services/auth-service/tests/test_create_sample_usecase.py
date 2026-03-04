@@ -10,10 +10,10 @@ from src.auth.application.auth.authorize_role_usecase import (
     AuthorizeRoleUseCase,
 )
 from src.auth.infra.auth.jwt_token_service import JwtTokenService
+from src.auth.infra.auth.bcrypt_password_hasher import BcryptPasswordHasher
 from src.auth.infra.auth.sqlalchemy_base import Base
 from src.auth.infra.auth.sqlalchemy_models import UserModel
 from src.auth.infra.auth.sqlalchemy_user_repository import SqlAlchemyUserRepository
-from src.auth.infra.auth.sha256_password_hasher import Sha256PasswordHasher
 
 
 def _build_sqlalchemy_repository() -> SqlAlchemyUserRepository:
@@ -22,7 +22,7 @@ def _build_sqlalchemy_repository() -> SqlAlchemyUserRepository:
     session_factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     session = session_factory()
 
-    hasher = Sha256PasswordHasher()
+    hasher = BcryptPasswordHasher()
     session.add_all(
         [
             UserModel(
@@ -47,7 +47,7 @@ def _build_sqlalchemy_repository() -> SqlAlchemyUserRepository:
 
 def test_authenticate_user_success():
     repository = _build_sqlalchemy_repository()
-    hasher = Sha256PasswordHasher()
+    hasher = BcryptPasswordHasher()
     token_service = JwtTokenService(secret_key="test-secret")
     use_case = AuthenticateUserUseCase(repository, hasher, token_service)
 
@@ -62,7 +62,7 @@ def test_authenticate_user_success():
 
 def test_authenticate_user_invalid_credentials():
     repository = _build_sqlalchemy_repository()
-    hasher = Sha256PasswordHasher()
+    hasher = BcryptPasswordHasher()
     token_service = JwtTokenService(secret_key="test-secret")
     use_case = AuthenticateUserUseCase(repository, hasher, token_service)
 

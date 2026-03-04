@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from .sqlalchemy_base import Base
 from .sqlalchemy_models import UserModel
-from .sha256_password_hasher import Sha256PasswordHasher
+from .bcrypt_password_hasher import BcryptPasswordHasher
 
 
 DATABASE_URL = os.getenv("AUTH_DATABASE_URL", "sqlite:///./auth.db")
@@ -25,7 +25,7 @@ def init_database() -> None:
     try:
         existing_count = session.query(UserModel).count()
         if existing_count == 0:
-            hasher = Sha256PasswordHasher()
+            hasher = BcryptPasswordHasher()
             session.add_all(
                 [
                     UserModel(

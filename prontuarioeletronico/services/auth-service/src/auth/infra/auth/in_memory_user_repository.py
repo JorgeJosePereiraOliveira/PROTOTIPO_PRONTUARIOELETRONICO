@@ -3,12 +3,12 @@ from typing import Optional
 from ...domain.auth.role import Role
 from ...domain.auth.user_entity import User
 from ...domain.auth.user_repository_interface import UserRepositoryInterface
-from .sha256_password_hasher import Sha256PasswordHasher
+from .bcrypt_password_hasher import BcryptPasswordHasher
 
 
 class InMemoryUserRepository(UserRepositoryInterface):
     def __init__(self):
-        hasher = Sha256PasswordHasher()
+        hasher = BcryptPasswordHasher()
         self._data: dict[str, User] = {
             "u-admin": User(
                 id="u-admin",
