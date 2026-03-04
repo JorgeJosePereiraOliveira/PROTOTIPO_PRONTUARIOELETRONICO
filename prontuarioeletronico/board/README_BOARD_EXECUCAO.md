@@ -5,6 +5,10 @@ Este diretório contém o board operacional do backlog técnico em formato execu
 ## Navegação rápida
 - Checklist de entrada em operação (go-live): [CHECKLIST_GO_LIVE_BOARD.md](CHECKLIST_GO_LIVE_BOARD.md)
 - Relatório final de fechamento da execução: [RELATORIO_FECHAMENTO_EXECUCAO_BOARD.md](RELATORIO_FECHAMENTO_EXECUCAO_BOARD.md)
+- Artefatos arquiteturais da ARC-01:
+  - [ADR-001-clean-architecture.md](ADR-001-clean-architecture.md)
+  - [CONTEXT_MAP.md](CONTEXT_MAP.md)
+  - [ARQUITETURA_BASELINE.md](ARQUITETURA_BASELINE.md)
 
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:
@@ -79,3 +83,13 @@ Na importação, substitua pelos usuários reais (GitHub/Jira) da equipe.
   - dependências críticas liberadas primeiro;
   - capacidade por squad/papel;
   - risco regulatório (LGPD) e risco operacional (Kubernetes/segurança).
+
+---
+
+## 6) Evidência de conclusão da ARC-01
+
+Para encerramento técnico da issue #1 (ARC-01), utilizar como evidência mínima:
+
+- ADR aprovado: `ADR-001-clean-architecture.md`
+- Mapa de contexto publicado: `CONTEXT_MAP.md`
+- Baseline e checklist de conformidade: `ARQUITETURA_BASELINE.md`

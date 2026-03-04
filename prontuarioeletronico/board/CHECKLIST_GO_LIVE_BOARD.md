@@ -150,3 +150,6 @@ Considere o board oficialmente em produção quando:
 - `board_backlog_github_issues_ready.csv` — importação de Issues com assignee/milestone.
 - `README_BOARD_EXECUCAO.md` — guia de uso Jira/GitHub.
 - `CHECKLIST_GO_LIVE_BOARD.md` — este checklist de entrada em operação.
+- `ADR-001-clean-architecture.md` — decisão arquitetural oficial (ARC-01).
+- `CONTEXT_MAP.md` — mapa de contextos e integrações permitidas.
+- `ARQUITETURA_BASELINE.md` — baseline e checklist de conformidade para PR.
