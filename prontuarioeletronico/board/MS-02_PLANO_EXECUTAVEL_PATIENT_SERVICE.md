@@ -66,7 +66,7 @@
 
 ## 6) Próxima fase (fase 2)
 
-- adicionar update/delete
-- aplicar autenticação/autorizações por papel
+- [x] adicionar update/delete
+- [x] aplicar autenticação/autorizações por papel (integração com auth-service)
 - persistência SQLAlchemy
 - integração com auth-service (token real)

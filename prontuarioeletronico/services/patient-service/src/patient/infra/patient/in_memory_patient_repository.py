@@ -12,6 +12,9 @@ class InMemoryPatientRepository(PatientRepositoryInterface):
         self._cpf_index[entity.cpf] = entity.id
 
     def update(self, entity: Patient) -> None:
+        current = self._data.get(entity.id)
+        if current is not None and current.cpf != entity.cpf:
+            self._cpf_index.pop(current.cpf, None)
         self._data[entity.id] = entity
         self._cpf_index[entity.cpf] = entity.id
 

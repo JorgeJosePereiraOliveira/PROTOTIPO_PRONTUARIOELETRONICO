@@ -27,13 +27,29 @@ pytest -q
 uvicorn src.patient.infra.api.main:app --reload --port 8001
 ```
 
-## Endpoints (fase 1)
+## Endpoints (fase 2)
 
 - `GET /health` -> liveness/readiness
 - `GET /api/v1/info` -> metadados do serviço
 - `POST /api/v1/patients` -> criar paciente
 - `GET /api/v1/patients/{patient_id}` -> buscar paciente
 - `GET /api/v1/patients` -> listar pacientes
+- `PUT /api/v1/patients/{patient_id}` -> atualizar paciente
+- `DELETE /api/v1/patients/{patient_id}` -> remover paciente
+
+## Segurança JWT/RBAC (integração com auth-service)
+
+- Endpoints de paciente exigem `Authorization: Bearer <token>`.
+- Integração com auth-service por HTTP em:
+	- `GET /api/v1/auth/verify`
+	- `GET /api/v1/auth/authorize?required_role=<role>`
+- Regras de acesso:
+	- create/get/list/update: `admin` ou `profissional`
+	- delete: `admin`
+
+Configuração:
+
+- `AUTH_SERVICE_URL` (default: `http://localhost:8001`)
 
 ## Regras de validação (fase 1)
 
