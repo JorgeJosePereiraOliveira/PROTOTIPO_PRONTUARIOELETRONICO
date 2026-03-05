@@ -13,6 +13,9 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - [ARC-02_TEMPLATE_MICROSSERVICO.md](ARC-02_TEMPLATE_MICROSSERVICO.md)
 - Entrega da MS-01:
   - [MS-01_RELATORIO_TECNICO_DETALHADO.md](MS-01_RELATORIO_TECNICO_DETALHADO.md)
+- Evolução da MS-02 (integração por gateway):
+  - [MS-02_ETAPA_GATEWAY_PLANO_EXECUTAVEL.md](MS-02_ETAPA_GATEWAY_PLANO_EXECUTAVEL.md)
+  - [MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md](MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md)
 
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:
@@ -118,3 +121,12 @@ Para encerramento técnico da MS-01 / US-2.1, utilizar como evidência mínima:
 - Código do serviço: `../services/auth-service/`
 - Contrato OpenAPI validado: `../services/auth-service/tests/test_openapi_contract.py`
 - Pipeline com execução do serviço: `../../.github/workflows/python-ci.yml`
+
+---
+
+## 9) Planejamento e rastreabilidade da etapa Gateway (MS-02)
+
+Para execução da etapa integrada por borda (gateway), utilizar:
+
+- Plano executável: `MS-02_ETAPA_GATEWAY_PLANO_EXECUTAVEL.md`
+- Relatório de ações realizadas na preparação: `MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md`
