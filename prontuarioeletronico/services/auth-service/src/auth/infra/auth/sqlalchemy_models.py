@@ -26,3 +26,10 @@ class RefreshTokenModel(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     replaced_by_jti: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+
+class AccessTokenBlacklistModel(Base):
+    __tablename__ = "auth_access_token_blacklist"
+
+    jti: Mapped[str] = mapped_column(String(64), primary_key=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)

@@ -59,6 +59,34 @@ def test_refresh_endpoint_rejects_reused_refresh_token():
     assert second_refresh.status_code == 401
 
 
+def test_logout_revokes_refresh_token_and_blacklists_access_token():
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"username": "admin", "password": "admin123"},
+    )
+    tokens = login_response.json()
+
+    logout_response = client.post(
+        "/api/v1/auth/logout",
+        json={"refresh_token": tokens["refresh_token"]},
+        headers={"Authorization": f"Bearer {tokens['access_token']}"},
+    )
+    assert logout_response.status_code == 200
+    assert logout_response.json()["logged_out"] is True
+
+    refresh_response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": tokens["refresh_token"]},
+    )
+    assert refresh_response.status_code == 401
+
+    verify_response = client.get(
+        "/api/v1/auth/verify",
+        headers={"Authorization": f"Bearer {tokens['access_token']}"},
+    )
+    assert verify_response.status_code == 401
+
+
 def test_verify_endpoint_accepts_valid_token():
     login_response = client.post(
         "/api/v1/auth/login",

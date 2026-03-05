@@ -26,6 +26,7 @@ class JwtTokenService(TokenService):
             "username": username,
             "role": role,
             "type": "access",
+            "jti": str(uuid4()),
             "iat": int(now.timestamp()),
             "exp": int((now + timedelta(minutes=self._access_expires_minutes)).timestamp()),
         }

@@ -36,6 +36,7 @@ uvicorn src.auth.infra.api.main:app --reload --port 8001
 - `GET /api/v1/info` -> metadados do serviço
 - `POST /api/v1/auth/login` -> autenticação e emissão de JWT
 - `POST /api/v1/auth/refresh` -> rotação de refresh token e renovação de access token
+- `POST /api/v1/auth/logout` -> revogação explícita de refresh token + blacklist de access token
 - `GET /api/v1/auth/verify` -> validação de JWT
 - `GET /api/v1/auth/authorize?required_role=<role>` -> autorização RBAC
 
@@ -45,6 +46,8 @@ uvicorn src.auth.infra.api.main:app --reload --port 8001
 - `refresh_token`: longa duração (default: 7 dias)
 - rotação obrigatória de `refresh_token` a cada uso (`/auth/refresh`)
 - `refresh_token` usado é revogado e substituído por novo token
+- `logout` revoga `refresh_token` explicitamente
+- `access_token` é adicionado a blacklist até seu `exp` (janela curta)
 
 ## Usuários de bootstrap (dev)
 

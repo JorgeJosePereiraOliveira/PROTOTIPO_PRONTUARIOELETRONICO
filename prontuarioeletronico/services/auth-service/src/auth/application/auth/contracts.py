@@ -51,3 +51,19 @@ class RefreshTokenRepository(ABC):
     @abstractmethod
     def revoke(self, jti: str, replaced_by_jti: Optional[str] = None) -> None:
         raise NotImplementedError
+
+
+@dataclass
+class AccessTokenBlacklistState:
+    jti: str
+    expires_at: datetime
+
+
+class AccessTokenBlacklistRepository(ABC):
+    @abstractmethod
+    def add(self, token_state: AccessTokenBlacklistState) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def is_blacklisted(self, jti: str, now: datetime) -> bool:
+        raise NotImplementedError
