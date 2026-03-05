@@ -7,6 +7,10 @@ from ...application.auth.authenticate_user_usecase import (
     AuthenticateUserInputDTO,
     AuthenticateUserUseCase,
 )
+from ...application.auth.refresh_access_token_usecase import (
+    RefreshAccessTokenInputDTO,
+    RefreshAccessTokenUseCase,
+)
 from ...application.auth.authorize_role_usecase import (
     AuthorizeRoleInputDTO,
     AuthorizeRoleUseCase,
@@ -14,6 +18,7 @@ from ...application.auth.authorize_role_usecase import (
 from ..auth.bcrypt_password_hasher import BcryptPasswordHasher
 from ..auth.database import SessionLocal, init_database
 from ..auth.jwt_token_service import JwtTokenService
+from ..auth.sqlalchemy_refresh_token_repository import SqlAlchemyRefreshTokenRepository
 from ..auth.sqlalchemy_user_repository import SqlAlchemyUserRepository
 
 
@@ -29,6 +34,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
 JWT_SECRET = os.getenv("AUTH_JWT_SECRET")
 APP_ENV = os.getenv("APP_ENV", "development")
 
@@ -40,14 +49,20 @@ if not JWT_SECRET:
 init_database()
 _db_session = SessionLocal()
 _user_repository = SqlAlchemyUserRepository(_db_session)
+_refresh_token_repository = SqlAlchemyRefreshTokenRepository(_db_session)
 _password_hasher = BcryptPasswordHasher()
 _token_service = JwtTokenService(secret_key=JWT_SECRET)
 _authenticate_user_usecase = AuthenticateUserUseCase(
     user_repository=_user_repository,
     password_hasher=_password_hasher,
     token_service=_token_service,
+    refresh_token_repository=_refresh_token_repository,
 )
 _authorize_role_usecase = AuthorizeRoleUseCase(token_service=_token_service)
+_refresh_access_token_usecase = RefreshAccessTokenUseCase(
+    token_service=_token_service,
+    refresh_token_repository=_refresh_token_repository,
+)
 
 
 def _extract_bearer_token(authorization: str | None) -> str:
@@ -92,6 +107,7 @@ def login(payload: LoginRequest):
         )
         return {
             "access_token": output.access_token,
+            "refresh_token": output.refresh_token,
             "token_type": output.token_type,
             "role": output.role,
         }
@@ -114,6 +130,21 @@ def verify_token(authorization: str | None = Header(default=None)):
         }
     except Exception as error:
         raise HTTPException(status_code=401, detail="invalid token") from error
+
+
+@app.post("/api/v1/auth/refresh")
+def refresh_token(payload: RefreshRequest):
+    try:
+        output = _refresh_access_token_usecase.execute(
+            RefreshAccessTokenInputDTO(refresh_token=payload.refresh_token)
+        )
+        return {
+            "access_token": output.access_token,
+            "refresh_token": output.refresh_token,
+            "token_type": output.token_type,
+        }
+    except ValueError as error:
+        raise HTTPException(status_code=401, detail=str(error)) from error
 
 
 @app.get("/api/v1/auth/authorize")

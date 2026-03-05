@@ -35,8 +35,16 @@ uvicorn src.auth.infra.api.main:app --reload --port 8001
 - `GET /health` -> liveness/readiness
 - `GET /api/v1/info` -> metadados do serviço
 - `POST /api/v1/auth/login` -> autenticação e emissão de JWT
+- `POST /api/v1/auth/refresh` -> rotação de refresh token e renovação de access token
 - `GET /api/v1/auth/verify` -> validação de JWT
 - `GET /api/v1/auth/authorize?required_role=<role>` -> autorização RBAC
+
+## Política de token
+
+- `access_token`: curta duração (default: 15 minutos)
+- `refresh_token`: longa duração (default: 7 dias)
+- rotação obrigatória de `refresh_token` a cada uso (`/auth/refresh`)
+- `refresh_token` usado é revogado e substituído por novo token
 
 ## Usuários de bootstrap (dev)
 

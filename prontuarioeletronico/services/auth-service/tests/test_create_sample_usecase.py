@@ -11,12 +11,15 @@ from src.auth.application.auth.authorize_role_usecase import (
 )
 from src.auth.infra.auth.jwt_token_service import JwtTokenService
 from src.auth.infra.auth.bcrypt_password_hasher import BcryptPasswordHasher
+from src.auth.infra.auth.sqlalchemy_refresh_token_repository import (
+    SqlAlchemyRefreshTokenRepository,
+)
 from src.auth.infra.auth.sqlalchemy_base import Base
 from src.auth.infra.auth.sqlalchemy_models import UserModel
 from src.auth.infra.auth.sqlalchemy_user_repository import SqlAlchemyUserRepository
 
 
-def _build_sqlalchemy_repository() -> SqlAlchemyUserRepository:
+def _build_sqlalchemy_repositories() -> tuple[SqlAlchemyUserRepository, SqlAlchemyRefreshTokenRepository]:
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(bind=engine)
     session_factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
@@ -42,14 +45,19 @@ def _build_sqlalchemy_repository() -> SqlAlchemyUserRepository:
         ]
     )
     session.commit()
-    return SqlAlchemyUserRepository(session)
+    return SqlAlchemyUserRepository(session), SqlAlchemyRefreshTokenRepository(session)
 
 
 def test_authenticate_user_success():
-    repository = _build_sqlalchemy_repository()
+    repository, refresh_repository = _build_sqlalchemy_repositories()
     hasher = BcryptPasswordHasher()
     token_service = JwtTokenService(secret_key="test-secret")
-    use_case = AuthenticateUserUseCase(repository, hasher, token_service)
+    use_case = AuthenticateUserUseCase(
+        repository,
+        hasher,
+        token_service,
+        refresh_repository,
+    )
 
     output = use_case.execute(
         AuthenticateUserInputDTO(username="admin", password="admin123")
@@ -61,10 +69,15 @@ def test_authenticate_user_success():
 
 
 def test_authenticate_user_invalid_credentials():
-    repository = _build_sqlalchemy_repository()
+    repository, refresh_repository = _build_sqlalchemy_repositories()
     hasher = BcryptPasswordHasher()
     token_service = JwtTokenService(secret_key="test-secret")
-    use_case = AuthenticateUserUseCase(repository, hasher, token_service)
+    use_case = AuthenticateUserUseCase(
+        repository,
+        hasher,
+        token_service,
+        refresh_repository,
+    )
 
     try:
         use_case.execute(
