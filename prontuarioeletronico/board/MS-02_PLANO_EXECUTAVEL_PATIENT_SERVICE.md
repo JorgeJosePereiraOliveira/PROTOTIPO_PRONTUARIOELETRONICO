@@ -69,4 +69,4 @@
 - [x] adicionar update/delete
 - [x] aplicar autenticação/autorizações por papel (integração com auth-service)
 - [x] persistência SQLAlchemy
-- integração com auth-service (token real)
+- [x] integração com auth-service (token real)

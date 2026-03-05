@@ -71,3 +71,4 @@ Principais arquivos de teste:
 
 - `tests/test_patient_api.py`
 - `tests/test_openapi_contract.py`
+- `tests/test_authorization_e2e.py` (integração E2E com token real do auth-service, sem mock)
