@@ -2,6 +2,8 @@
 
 Microsserviço de pacientes (MS-02 / US-2.2) em Clean Architecture.
 
+Persistência principal via SQLAlchemy.
+
 ## Estrutura
 
 ```text
@@ -50,6 +52,7 @@ uvicorn src.patient.infra.api.main:app --reload --port 8001
 Configuração:
 
 - `AUTH_SERVICE_URL` (default: `http://localhost:8001`)
+- `PATIENT_DATABASE_URL` (default: `sqlite:///./patient.db`)
 
 ## Regras de validação (fase 1)
 

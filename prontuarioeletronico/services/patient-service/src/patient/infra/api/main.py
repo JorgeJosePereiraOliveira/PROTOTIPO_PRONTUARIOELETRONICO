@@ -23,7 +23,8 @@ from ...application.patient.delete_patient_usecase import (
     DeletePatientUseCase,
 )
 from ...infra.auth.auth_service_client import AuthServiceClient
-from ...infra.patient.in_memory_patient_repository import InMemoryPatientRepository
+from ...infra.patient.database import SessionLocal, init_database
+from ...infra.patient.sqlalchemy_patient_repository import SqlAlchemyPatientRepository
 
 
 app = FastAPI(
@@ -69,7 +70,9 @@ class UpdatePatientRequest(BaseModel):
     )
 
 
-_repository = InMemoryPatientRepository()
+init_database()
+_db_session = SessionLocal()
+_repository = SqlAlchemyPatientRepository(_db_session)
 _create_patient_usecase = CreatePatientUseCase(_repository)
 _find_patient_usecase = FindPatientUseCase(_repository)
 _list_patients_usecase = ListPatientsUseCase(_repository)
