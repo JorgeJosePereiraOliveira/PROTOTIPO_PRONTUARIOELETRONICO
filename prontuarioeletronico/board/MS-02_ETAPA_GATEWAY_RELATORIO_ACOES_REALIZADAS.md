@@ -1,116 +1,114 @@
 # MS-02 — Etapa Gateway e Integração (Relatório de Ações Realizadas)
 
 - **Data:** 2026-03-05
-- **Objetivo do relatório:** registrar detalhadamente as ações já executadas que habilitam a próxima etapa (Gateway + integração), garantindo rastreabilidade para gestão, issue e banca/TCC.
+- **Objetivo do relatório:** registrar detalhadamente a implementação executada da etapa de integração por borda (Gateway), mantendo rastreabilidade para gestão, issue e banca/TCC.
 
 ---
 
-## 1) Contexto de partida da etapa
+## 1) Contexto e objetivo da execução
 
-Antes do planejamento do gateway, o projeto já possuía:
-
-1. **MS-01 concluída**
-   - `auth-service` funcional com JWT + RBAC.
-   - refresh token rotation/revocation.
-   - logout com revogação e blacklist de access token.
-   - contrato OpenAPI validado em CI.
-
-2. **MS-02 fase 1 e fase 2 concluídas no patient-service**
-   - CRUD de pacientes entregue.
-   - persistência migrada para SQLAlchemy.
-   - proteção JWT/RBAC integrada ao auth-service.
-   - testes E2E reais (sem mock de autorização) implementados.
-
-3. **Pipeline atualizado**
-   - jobs dedicados para core/auth/patient com execução verde nas últimas validações.
+Com MS-01 (Auth Service) e MS-02 fase 2 (Patient Service) já concluídas, esta etapa teve como objetivo fechar a US-2.2 no nível de plataforma integrada, adicionando o `gateway-service` como borda única de consumo e validando o fluxo real de autenticação/autorização entre serviços.
 
 ---
 
-## 2) Ações realizadas nesta preparação da etapa Gateway
+## 2) Implementação realizada
 
-### 2.1 Levantamento de artefatos de governança existentes
+### 2.1 Scaffold do gateway-service
 
-- Consulta da estrutura da pasta `board/` para manter padrão documental e nomenclatura.
-- Revisão do arquivo de navegação operacional:
-  - `board/README_BOARD_EXECUCAO.md`
-- Revisão do plano já existente da MS-02 para continuidade de escopo:
-  - `board/MS-02_PLANO_EXECUTAVEL_PATIENT_SERVICE.md`
+- Serviço criado em `services/gateway-service` com estrutura padrão ARC-02.
+- Ajustes de README e testes para foco em proxy/integração.
 
-**Resultado:** base de referência confirmada para criação de um plano específico da etapa de integração por gateway.
+Arquivos principais:
 
-### 2.2 Consolidação do próximo objetivo técnico (fechamento integrado da US-2.2)
+- `services/gateway-service/README.md`
+- `services/gateway-service/src/gateway/infra/api/main.py`
+- `services/gateway-service/src/gateway/infra/proxy/http_service_proxy.py`
 
-- Definição de foco da próxima entrega:
-  - sair do nível de teste por serviço isolado;
-  - validar operação por borda (gateway) com contratos e segurança propagados.
+### 2.2 Rotas proxy para Auth e Patient
 
-**Resultado:** escopo fechado para “Gateway + testes de integração + checklist de aceite”, sem ampliação indevida para outros épicos.
+Rotas de auth implementadas no gateway:
 
-### 2.3 Criação do plano executável da etapa Gateway
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/refresh`
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/auth/verify`
+- `GET /api/v1/auth/authorize`
+
+Rotas de patient implementadas no gateway:
+
+- `POST /api/v1/patients`
+- `GET /api/v1/patients`
+- `GET /api/v1/patients/{patient_id}`
+- `PUT /api/v1/patients/{patient_id}`
+- `DELETE /api/v1/patients/{patient_id}`
+
+### 2.3 Propagação de segurança
+
+- Cabeçalho `Authorization` propagado do gateway para serviços internos.
+- Gateway não replica regra de negócio de segurança: delega a validação ao `auth-service` e ao `patient-service`.
+- Resposta HTTP (status/body) do downstream é encaminhada de forma transparente.
+
+### 2.4 Testes de integração via gateway
 
 Arquivo criado:
-- `board/MS-02_ETAPA_GATEWAY_PLANO_EXECUTAVEL.md`
 
-Conteúdo estruturado com:
-- escopo implementável;
-- princípios de precisão de escopo;
-- entregáveis de código, CI e documentação;
-- contratos de rota alvo;
-- estratégia de testes de integração;
-- checklist de aceite;
-- sequência de execução;
-- riscos e mitigação.
+- `services/gateway-service/tests/test_gateway_integration.py`
 
-**Resultado:** plano pronto para execução operacional imediata.
+Cenários cobertos:
 
-### 2.4 Formalização deste relatório de ações
+1. Login real via gateway com emissão de token.
+2. CRUD de paciente por gateway com token válido.
+3. RBAC real no delete:
+   - `profissional` retorna `403`.
+   - `admin` retorna `200`.
+4. Token ausente/inválido retorna `401`.
+
+### 2.5 Teste de contrato OpenAPI do gateway
 
 Arquivo criado:
-- `board/MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md`
 
-**Resultado:** rastreabilidade acadêmica e de gestão assegurada para auditoria da evolução do projeto.
+- `services/gateway-service/tests/test_gateway_openapi_contract.py`
 
----
+Coberturas:
 
-## 3) Delimitação do que NÃO foi executado ainda
+- presença de paths de auth/patient no spec;
+- presença dos métodos esperados (POST/GET/PUT/DELETE);
+- exemplo de schema para login.
 
-Para manter precisão de escopo, nesta rodada **não** foram implementados ainda:
+### 2.6 Integração em CI
 
-- código do `gateway-service`;
-- testes de integração via gateway;
-- novo job de CI específico do gateway.
+Arquivo atualizado:
 
-Esses itens estão explicitamente previstos no plano executável e serão tratados na implementação da próxima iteração.
+- `.github/workflows/python-ci.yml`
 
----
+Entrega:
 
-## 4) Critérios de prontidão para iniciar implementação da etapa
-
-A etapa está pronta para execução porque já existem:
-
-- serviços `auth-service` e `patient-service` funcionais e testados;
-- contratos e regras de segurança definidos;
-- cobertura de testes por serviço incluindo E2E auth↔patient;
-- plano detalhado com entregáveis e aceite.
+- job `gateway-integration-tests` adicionado;
+- instalação de dependências de gateway/auth/patient;
+- execução de `pytest -q tests` no diretório do gateway.
 
 ---
 
-## 5) Próximo passo operacional imediato
+## 3) Resultados de validação
 
-Iniciar a implementação do `gateway-service` conforme plano, começando por:
+Execuções locais realizadas após implementação:
 
-1. scaffold do serviço;
-2. rotas proxy para auth/patient;
-3. suíte de integração via gateway com token real;
-4. integração no pipeline.
+- `gateway-service`: 5 testes aprovados.
+- `auth-service`: 13 testes aprovados.
+
+Esses resultados confirmam que o gateway integra corretamente os serviços existentes sem regressão funcional observada no escopo validado.
 
 ---
 
-## 6) Evidências de suporte (referências já existentes)
+## 4) Atualização de governança
 
-- Plano da MS-02 até fase 2:
-  - `board/MS-02_PLANO_EXECUTAVEL_PATIENT_SERVICE.md`
-- Relatório técnico da MS-01:
-  - `board/MS-01_RELATORIO_TECNICO_DETALHADO.md`
-- Navegação operacional do board:
+- Checklist do plano da etapa gateway atualizado para concluído em:
+  - `board/MS-02_ETAPA_GATEWAY_PLANO_EXECUTAVEL.md`
+- Navegação do board já inclui os artefatos da etapa:
   - `board/README_BOARD_EXECUCAO.md`
+
+---
+
+## 5) Conclusão
+
+A etapa **Gateway + testes de integração + job de CI** foi implementada conforme plano, com rastreabilidade documental e validação automatizada, mantendo coerência com o escopo de fechamento integrado da US-2.2.

@@ -59,3 +59,23 @@ jobs:
       run: |
         cd prontuarioeletronico/services/patient-service
         pytest -q tests
+
+  gateway-integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install gateway/auth/patient dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r prontuarioeletronico/services/gateway-service/requirements.txt
+        pip install -r prontuarioeletronico/services/auth-service/requirements.txt
+        pip install -r prontuarioeletronico/services/patient-service/requirements.txt
+        pip install pytest
+    - name: Run gateway integration tests
+      run: |
+        cd prontuarioeletronico/services/gateway-service
+        pytest -q tests

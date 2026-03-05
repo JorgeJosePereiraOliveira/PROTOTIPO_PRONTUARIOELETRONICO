@@ -97,13 +97,13 @@
 
 ## 6) Checklist de aceite (etapa gateway)
 
-- [ ] Gateway criado no padrão do projeto.
-- [ ] Rotas de auth e patient publicadas no gateway.
-- [ ] Propagação de `Authorization` validada.
-- [ ] Testes de integração via gateway aprovados.
-- [ ] Testes de contrato OpenAPI do gateway aprovados.
-- [ ] CI com job de integração do gateway configurado e verde.
-- [ ] Documentação de evidências atualizada.
+- [x] Gateway criado no padrão do projeto.
+- [x] Rotas de auth e patient publicadas no gateway.
+- [x] Propagação de `Authorization` validada.
+- [x] Testes de integração via gateway aprovados.
+- [x] Testes de contrato OpenAPI do gateway aprovados.
+- [x] CI com job de integração do gateway configurado e verde.
+- [x] Documentação de evidências atualizada.
 
 ---
 
