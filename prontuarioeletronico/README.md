@@ -38,6 +38,20 @@ Este projeto possui um backlog técnico priorizado para evolução do protótipo
 
 📄 **Backlog técnico completo e detalhado:** [README_BACKLOG_TECNICO.md](README_BACKLOG_TECNICO.md)
 
+## Status de Execução (Atualizado)
+
+### ✅ Sprint 2 / MS-01 concluído
+
+- Serviço `auth-service` implementado com FastAPI + SQLAlchemy.
+- Segurança com JWT (`access` + `refresh`) e RBAC (`admin`, `profissional`).
+- Política de refresh token com rotação e revogação.
+- Logout com revogação explícita e blacklist de access token por `jti` até `exp`.
+- `AUTH_JWT_SECRET` obrigatório (sem fallback inseguro).
+- Testes de contrato OpenAPI adicionados para schema e exemplos de segurança.
+- Pipeline CI atualizado para executar suíte do auth-service continuamente.
+
+📄 Relatório técnico detalhado do MS-01: [board/MS-01_RELATORIO_TECNICO_DETALHADO.md](board/MS-01_RELATORIO_TECNICO_DETALHADO.md)
+
 ## Estrutura do Projeto
 
 ```

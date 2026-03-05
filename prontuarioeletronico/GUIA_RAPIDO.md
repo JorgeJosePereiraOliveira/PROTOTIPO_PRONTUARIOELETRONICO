@@ -78,6 +78,16 @@ curl http://localhost:8000/docs
 | `POST` | `/api/v1/clinical-records/problems` | Criar problema (RCOP) |
 | `POST` | `/api/v1/clinical-records/soap` | Registrar SOAP |
 
+### Auth Service (Sprint 2 / MS-01)
+
+| Método | Endpoint | Função |
+|--------|----------|--------|
+| `POST` | `/api/v1/auth/login` | Login e emissão de tokens |
+| `POST` | `/api/v1/auth/refresh` | Rotação de refresh token |
+| `POST` | `/api/v1/auth/logout` | Revogação de sessão/token |
+| `GET` | `/api/v1/auth/verify` | Verificação de access token |
+| `GET` | `/api/v1/auth/authorize` | Autorização por papel (RBAC) |
+
 ## 🧪 Testes
 
 ```bash
@@ -86,7 +96,15 @@ python -m pytest tests.py -v
 
 # Cobertura
 python -m pytest tests.py --cov=src
+
+# Auth Service (inclui contrato OpenAPI)
+python -m pytest services/auth-service/tests -q
 ```
+
+Contrato OpenAPI do auth-service:
+
+- `services/auth-service/tests/test_openapi_contract.py`
+- valida schema, `HTTPBearer`, endpoints protegidos e exemplos de segurança
 
 ## 🏗️ Casos de Uso Implementados
 
@@ -218,6 +236,11 @@ cat src/infra/patient/sqlalchemy/patient_repository.py
 ## 📖 Documentação Completa
 
 - `README.md` - Overview e instruções
+
+### Fechamento Sprint 2 / MS-01
+
+- `board/MS-01_RELATORIO_TECNICO_DETALHADO.md` - relatório minucioso da implementação
+- `services/auth-service/README.md` - arquitetura, política de token, testes e CI do auth-service
 - `ESTRUTURA_PROJETO.py` - Estrutura de pastas detalhada
 - `ARQUITETURA_DETALHES.py` - Análise técnica profunda
 - `EXEMPLOS_USO.sh` - Exemplos de requisições

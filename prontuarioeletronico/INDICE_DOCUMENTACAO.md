@@ -16,34 +16,40 @@
    - Como executar
    - Exemplos de uso
 
+3. **[board/MS-01_RELATORIO_TECNICO_DETALHADO.md](board/MS-01_RELATORIO_TECNICO_DETALHADO.md)** - Fechamento técnico do MS-01 (20 min)
+   - Cronologia de implementação
+   - Segurança JWT/RBAC e políticas de revogação
+   - Testes de contrato OpenAPI no pipeline CI
+   - Evidências por issue/sprint
+
 ### Para Compreender a Arquitetura
-3. **[ARQUITETURA_VISUAL.py](ARQUITETURA_VISUAL.py)** - Diagrama ASCII (10 min)
+4. **[ARQUITETURA_VISUAL.py](ARQUITETURA_VISUAL.py)** - Diagrama ASCII (10 min)
    - Anéis concêntricos
    - Fluxo de requisição
    - Matriz de responsabilidades
    - Proteção do RCOP/SOAP
 
-4. **[ARKUITETURA_DETALHES.py](ARQUITETURA_DETALHES.py)** - Análise profunda (30 min)
+5. **[ARKUITETURA_DETALHES.py](ARQUITETURA_DETALHES.py)** - Análise profunda (30 min)
    - Cada camada em detalhes
    - Implementações concretas
    - Testabilidade
    - Benefícios práticos
 
 ### Para Explorar o Código
-5. **[ESTRUTURA_PROJETO.py](ESTRUTURA_PROJETO.py)** - Estrutura de pastas (15 min)
+6. **[ESTRUTURA_PROJETO.py](ESTRUTURA_PROJETO.py)** - Estrutura de pastas (15 min)
    - Árvore completa
    - Arquivo por arquivo
    - Localização de cada componente
    - Tecnologias por camada
 
-6. **[VISUALIZAR_ESTRUTURA.py](VISUALIZAR_ESTRUTURA.py)** - Visualização ASCII (5 min)
+7. **[VISUALIZAR_ESTRUTURA.py](VISUALIZAR_ESTRUTURA.py)** - Visualização ASCII (5 min)
    - Árvore visual
    - Dependency flow
    - Entry points
    - File statistics
 
 ### Para Usar a API
-7. **[EXEMPLOS_USO.sh](EXEMPLOS_USO.sh)** - Exemplos de requisições (10 min)
+8. **[EXEMPLOS_USO.sh](EXEMPLOS_USO.sh)** - Exemplos de requisições (10 min)
    - Registrar paciente
    - Criar problema (RCOP)
    - Registrar SOAP
@@ -262,13 +268,14 @@ Para dúvidas sobre:
 - ✅ Docker configuration
 - ✅ Unit tests
 - ✅ Documentation (6 guides)
-- 🔄 Authentication (TODO)
+- ✅ Authentication service (JWT + RBAC + refresh rotation + logout)
+- ✅ OpenAPI contract tests no pipeline (auth-service)
 - 🔄 More endpoints (TODO)
 - 🔄 Integration tests (TODO)
 
 ---
 
-**Última atualização**: Fevereiro 2024  
-**Versão**: 1.0.0 - Protótipo Funcional  
-**Status**: Pronto para produção com adições de segurança
+**Última atualização**: Março 2026  
+**Versão**: 1.2.0 - Sprint 2 (MS-01) concluída  
+**Status**: Protótipo funcional com auth-service e contratos OpenAPI em CI
 

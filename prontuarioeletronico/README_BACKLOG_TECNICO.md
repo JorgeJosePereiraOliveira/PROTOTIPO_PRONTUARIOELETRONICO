@@ -444,14 +444,25 @@ Uma história só é concluída quando:
 
 ## 9) Checklist de prontidão para início da execução
 
-- [ ] ADRs iniciais aprovados.
-- [ ] Template de microsserviço criado.
-- [ ] Pipeline CI baseline configurado.
+- [x] ADRs iniciais aprovados.
+- [x] Template de microsserviço criado.
+- [x] Pipeline CI baseline configurado.
 - [ ] Ambiente Docker local multi-serviço funcional.
-- [ ] Segurança mínima (JWT, segredos, TLS em borda) definida.
-- [ ] Plano de testes de contrato estabelecido.
+- [x] Segurança mínima (JWT, segredos, TLS em borda) definida.
+- [x] Plano de testes de contrato estabelecido.
 - [ ] Estratégia de deploy em Kubernetes documentada.
 - [ ] Plano de evidências experimentais acordado com orientador/equipe.
+
+Status parcial de execução:
+
+- ARC-01 concluída (governança arquitetural).
+- ARC-02 concluída (template de microsserviço reutilizável).
+- MS-01 (US-2.1 Auth Service) concluída com:
+   - JWT + RBAC;
+   - refresh token rotation/revocation;
+   - logout com blacklist de access token;
+   - contrato OpenAPI validado em CI.
+- Evidência consolidada: `board/MS-01_RELATORIO_TECNICO_DETALHADO.md`.
 
 ---
 

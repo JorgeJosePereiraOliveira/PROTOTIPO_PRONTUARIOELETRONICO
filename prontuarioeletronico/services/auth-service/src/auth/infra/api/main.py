@@ -1,8 +1,9 @@
 import os
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, Header, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, Header, HTTPException, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel, ConfigDict
 
 from ...application.auth.authenticate_user_usecase import (
     AuthenticateUserInputDTO,
@@ -38,13 +39,38 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "username": "admin",
+                "password": "admin123",
+            }
+        }
+    )
+
 
 class RefreshRequest(BaseModel):
     refresh_token: str
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "refresh_token": "<refresh_token_jwt>",
+            }
+        }
+    )
+
 
 class LogoutRequest(BaseModel):
     refresh_token: str
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "refresh_token": "<refresh_token_jwt>",
+            }
+        }
+    )
 
 
 JWT_SECRET = os.getenv("AUTH_JWT_SECRET")
@@ -78,6 +104,8 @@ _logout_usecase = LogoutUseCase(
     refresh_token_repository=_refresh_token_repository,
     access_blacklist_repository=_access_token_blacklist_repository,
 )
+
+_bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def _extract_bearer_token(authorization: str | None) -> str:
@@ -149,9 +177,27 @@ def login(payload: LoginRequest):
         raise HTTPException(status_code=401, detail=str(error)) from error
 
 
-@app.get("/api/v1/auth/verify")
-def verify_token(authorization: str | None = Header(default=None)):
-    token = _extract_bearer_token(authorization)
+@app.get(
+    "/api/v1/auth/verify",
+    responses={
+        401: {
+            "description": "Token inválido, ausente ou revogado",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "revoked": {"value": {"detail": "access token revoked"}},
+                        "invalid": {"value": {"detail": "invalid token"}},
+                    }
+                }
+            },
+        }
+    },
+)
+def verify_token(
+    authorization: str | None = Header(default=None),
+    bearer: HTTPAuthorizationCredentials | None = Security(_bearer_scheme),
+):
+    token = bearer.credentials if bearer else _extract_bearer_token(authorization)
     try:
         claims = _validate_active_access_token(token)
         return {
@@ -162,11 +208,28 @@ def verify_token(authorization: str | None = Header(default=None)):
                 "role": claims.get("role"),
             },
         }
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=401, detail="invalid token") from error
 
 
-@app.post("/api/v1/auth/refresh")
+@app.post(
+    "/api/v1/auth/refresh",
+    responses={
+        401: {
+            "description": "Refresh token inválido, expirado, revogado ou reutilizado",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "revoked": {"value": {"detail": "refresh token revoked"}},
+                        "reused": {"value": {"detail": "refresh token revoked"}},
+                    }
+                }
+            },
+        }
+    },
+)
 def refresh_token(payload: RefreshRequest):
     try:
         output = _refresh_access_token_usecase.execute(
@@ -181,10 +244,33 @@ def refresh_token(payload: RefreshRequest):
         raise HTTPException(status_code=401, detail=str(error)) from error
 
 
-@app.post("/api/v1/auth/logout")
-def logout(payload: LogoutRequest, authorization: str | None = Header(default=None)):
-    access_token = None
-    if authorization:
+@app.post(
+    "/api/v1/auth/logout",
+    responses={
+        401: {
+            "description": "Token inválido para logout",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "invalid_refresh": {
+                            "value": {"detail": "invalid refresh token type"}
+                        },
+                        "invalid_access": {
+                            "value": {"detail": "invalid access token type"}
+                        },
+                    }
+                }
+            },
+        }
+    },
+)
+def logout(
+    payload: LogoutRequest,
+    authorization: str | None = Header(default=None),
+    bearer: HTTPAuthorizationCredentials | None = Security(_bearer_scheme),
+):
+    access_token = bearer.credentials if bearer else None
+    if access_token is None and authorization:
         access_token = _extract_bearer_token(authorization)
 
     try:
@@ -199,9 +285,28 @@ def logout(payload: LogoutRequest, authorization: str | None = Header(default=No
         raise HTTPException(status_code=401, detail=str(error)) from error
 
 
-@app.get("/api/v1/auth/authorize")
-def authorize(required_role: str, authorization: str | None = Header(default=None)):
-    token = _extract_bearer_token(authorization)
+@app.get(
+    "/api/v1/auth/authorize",
+    responses={
+        401: {
+            "description": "Acesso negado por token inválido/revogado",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "revoked": {"value": {"detail": "access token revoked"}},
+                        "invalid": {"value": {"detail": "invalid token"}},
+                    }
+                }
+            },
+        }
+    },
+)
+def authorize(
+    required_role: str,
+    authorization: str | None = Header(default=None),
+    bearer: HTTPAuthorizationCredentials | None = Security(_bearer_scheme),
+):
+    token = bearer.credentials if bearer else _extract_bearer_token(authorization)
     try:
         _validate_active_access_token(token)
         output = _authorize_role_usecase.execute(
@@ -214,5 +319,7 @@ def authorize(required_role: str, authorization: str | None = Header(default=Non
         }
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=401, detail="invalid token") from error

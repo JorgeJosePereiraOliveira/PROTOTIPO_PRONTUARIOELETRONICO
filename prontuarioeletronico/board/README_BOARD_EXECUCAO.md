@@ -11,6 +11,8 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - [ARQUITETURA_BASELINE.md](ARQUITETURA_BASELINE.md)
 - Entrega da ARC-02:
   - [ARC-02_TEMPLATE_MICROSSERVICO.md](ARC-02_TEMPLATE_MICROSSERVICO.md)
+- Entrega da MS-01:
+  - [MS-01_RELATORIO_TECNICO_DETALHADO.md](MS-01_RELATORIO_TECNICO_DETALHADO.md)
 
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:
@@ -105,3 +107,14 @@ Para encerramento técnico da ARC-02, utilizar como evidência mínima:
 - Entrega formal da issue: `ARC-02_TEMPLATE_MICROSSERVICO.md`
 - Gerador de serviço: `templates/create_microservice.py`
 - Guia de uso e convenções: `templates/README_TEMPLATE_MICROSSERVICO.md`
+
+---
+
+## 8) Evidência de conclusão da MS-01 (Auth Service)
+
+Para encerramento técnico da MS-01 / US-2.1, utilizar como evidência mínima:
+
+- Relatório técnico consolidado: `MS-01_RELATORIO_TECNICO_DETALHADO.md`
+- Código do serviço: `../services/auth-service/`
+- Contrato OpenAPI validado: `../services/auth-service/tests/test_openapi_contract.py`
+- Pipeline com execução do serviço: `../../.github/workflows/python-ci.yml`

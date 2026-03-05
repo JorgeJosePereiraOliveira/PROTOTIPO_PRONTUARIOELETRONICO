@@ -49,6 +49,37 @@ uvicorn src.auth.infra.api.main:app --reload --port 8001
 - `logout` revoga `refresh_token` explicitamente
 - `access_token` é adicionado a blacklist até seu `exp` (janela curta)
 
+## Contrato OpenAPI e segurança
+
+- Especificação: `GET /openapi.json`
+- Segurança documentada com esquema `HTTPBearer`
+- Endpoints protegidos com contrato de segurança explícito no spec:
+	- `GET /api/v1/auth/verify`
+	- `GET /api/v1/auth/authorize`
+	- `POST /api/v1/auth/logout`
+- Exemplos de payload e respostas de segurança no OpenAPI:
+	- login/refresh/logout request examples
+	- exemplos 401 para token inválido/revogado/reutilizado
+
+## Testes
+
+```bash
+pytest -q
+```
+
+Suítes principais:
+
+- `tests/test_auth_api.py` (fluxos funcionais + segurança)
+- `tests/test_openapi_contract.py` (schema + exemplos de segurança)
+- `tests/test_create_sample_usecase.py` (casos de uso com SQLAlchemy)
+
+## Pipeline CI
+
+Workflow integrado em `.github/workflows/python-ci.yml` com job dedicado ao auth-service:
+
+- execução da suíte do serviço (`pytest -q prontuarioeletronico/services/auth-service/tests`)
+- validação contínua de contrato OpenAPI em PR/push
+
 ## Usuários de bootstrap (dev)
 
 - admin / admin123 (role: admin)
