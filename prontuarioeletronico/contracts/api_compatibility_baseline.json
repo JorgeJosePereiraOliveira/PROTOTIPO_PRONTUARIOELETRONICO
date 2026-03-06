@@ -1,0 +1,34 @@
+{
+  "auth-service": [
+    "GET /health",
+    "GET /api/v1/info",
+    "POST /api/v1/auth/login",
+    "POST /api/v1/auth/refresh",
+    "POST /api/v1/auth/logout",
+    "GET /api/v1/auth/verify",
+    "GET /api/v1/auth/authorize"
+  ],
+  "patient-service": [
+    "GET /health",
+    "GET /api/v1/info",
+    "POST /api/v1/patients",
+    "GET /api/v1/patients",
+    "GET /api/v1/patients/{patient_id}",
+    "PUT /api/v1/patients/{patient_id}",
+    "DELETE /api/v1/patients/{patient_id}"
+  ],
+  "gateway-service": [
+    "GET /health",
+    "GET /api/v1/info",
+    "POST /api/v1/auth/login",
+    "POST /api/v1/auth/refresh",
+    "POST /api/v1/auth/logout",
+    "GET /api/v1/auth/verify",
+    "GET /api/v1/auth/authorize",
+    "POST /api/v1/patients",
+    "GET /api/v1/patients",
+    "GET /api/v1/patients/{patient_id}",
+    "PUT /api/v1/patients/{patient_id}",
+    "DELETE /api/v1/patients/{patient_id}"
+  ]
+}

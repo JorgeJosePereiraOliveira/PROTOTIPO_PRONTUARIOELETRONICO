@@ -7,6 +7,24 @@ on:
     branches: [ main ]
 
 jobs:
+  api-compatibility-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install dependencies for compatibility check
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r prontuarioeletronico/services/auth-service/requirements.txt
+        pip install -r prontuarioeletronico/services/patient-service/requirements.txt
+        pip install -r prontuarioeletronico/services/gateway-service/requirements.txt
+    - name: Run API breaking change check
+      run: |
+        python prontuarioeletronico/scripts/check_api_breaking_changes.py
+
   security-baseline:
     runs-on: ubuntu-latest
     steps:
