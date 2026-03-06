@@ -462,7 +462,19 @@ Status parcial de execução:
    - refresh token rotation/revocation;
    - logout com blacklist de access token;
    - contrato OpenAPI validado em CI.
-- Evidência consolidada: `board/MS-01_RELATORIO_TECNICO_DETALHADO.md`.
+- MS-02 (US-2.2 Patient Service) concluída com:
+   - CRUD completo de paciente;
+   - persistência SQLAlchemy;
+   - integração JWT/RBAC com auth-service;
+   - integração por gateway e testes de contrato.
+- SEC-01 concluída com:
+   - hardening de segredos/URLs por ambiente;
+   - `.env.example` por serviço;
+   - varredura de segurança no CI (`security-baseline`).
+- Evidências consolidadas:
+   - `board/MS-01_RELATORIO_TECNICO_DETALHADO.md`
+   - `board/MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md`
+   - `board/SEC-01_RELATORIO_TECNICO_SEGREDOS_HARDENING.md`
 
 ---
 

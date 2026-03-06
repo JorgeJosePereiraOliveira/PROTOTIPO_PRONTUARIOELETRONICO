@@ -8,7 +8,12 @@ from .sqlalchemy_models import UserModel
 from .bcrypt_password_hasher import BcryptPasswordHasher
 
 
+APP_ENV = os.getenv("APP_ENV", "development")
 DATABASE_URL = os.getenv("AUTH_DATABASE_URL", "sqlite:///./auth.db")
+BOOTSTRAP_DEFAULT_USERS = os.getenv("AUTH_BOOTSTRAP_DEFAULT_USERS", "true").lower() == "true"
+
+if APP_ENV in {"production", "staging"} and "AUTH_DATABASE_URL" not in os.environ:
+    raise RuntimeError("AUTH_DATABASE_URL is required for production/staging")
 
 _engine_kwargs = {}
 if DATABASE_URL.startswith("sqlite"):
@@ -24,7 +29,7 @@ def init_database() -> None:
     session = SessionLocal()
     try:
         existing_count = session.query(UserModel).count()
-        if existing_count == 0:
+        if existing_count == 0 and BOOTSTRAP_DEFAULT_USERS and APP_ENV in {"development", "test"}:
             hasher = BcryptPasswordHasher()
             session.add_all(
                 [

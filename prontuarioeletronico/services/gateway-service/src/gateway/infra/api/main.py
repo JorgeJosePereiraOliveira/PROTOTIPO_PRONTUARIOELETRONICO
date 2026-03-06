@@ -43,8 +43,20 @@ class PatientPayload(BaseModel):
     gender: str
 
 
-AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
-PATIENT_SERVICE_URL = os.getenv("PATIENT_SERVICE_URL", "http://localhost:8002")
+APP_ENV = os.getenv("APP_ENV", "development")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+PATIENT_SERVICE_URL = os.getenv("PATIENT_SERVICE_URL")
+
+if APP_ENV in {"production", "staging"}:
+    if AUTH_SERVICE_URL is None:
+        raise RuntimeError("AUTH_SERVICE_URL is required for production/staging")
+    if PATIENT_SERVICE_URL is None:
+        raise RuntimeError("PATIENT_SERVICE_URL is required for production/staging")
+
+if AUTH_SERVICE_URL is None:
+    AUTH_SERVICE_URL = "http://localhost:8001"
+if PATIENT_SERVICE_URL is None:
+    PATIENT_SERVICE_URL = "http://localhost:8002"
 
 _auth_proxy = HttpServiceProxy(base_url=AUTH_SERVICE_URL)
 _patient_proxy = HttpServiceProxy(base_url=PATIENT_SERVICE_URL)

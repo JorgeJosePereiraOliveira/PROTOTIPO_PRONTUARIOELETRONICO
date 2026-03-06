@@ -91,3 +91,9 @@ Workflow integrado em `.github/workflows/python-ci.yml` com job dedicado ao auth
 - `APP_ENV` (opcional, default: `development`)
 - `AUTH_DATABASE_URL` (opcional)
 	- padrão: `sqlite:///./auth.db`
+
+Hardening SEC-01:
+
+- Em `production`/`staging`, `AUTH_DATABASE_URL` deve ser definido explicitamente.
+- Bootstrap de usuários padrão controlado por `AUTH_BOOTSTRAP_DEFAULT_USERS` (padrão: `true` apenas para `development`/`test`).
+- Arquivo de referência: `.env.example`

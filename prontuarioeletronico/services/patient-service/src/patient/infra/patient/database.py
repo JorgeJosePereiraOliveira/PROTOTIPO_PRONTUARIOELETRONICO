@@ -6,7 +6,11 @@ from sqlalchemy.orm import sessionmaker
 from .sqlalchemy_base import Base
 
 
+APP_ENV = os.getenv("APP_ENV", "development")
 DATABASE_URL = os.getenv("PATIENT_DATABASE_URL", "sqlite:///./patient.db")
+
+if APP_ENV in {"production", "staging"} and "PATIENT_DATABASE_URL" not in os.environ:
+    raise RuntimeError("PATIENT_DATABASE_URL is required for production/staging")
 
 _engine_kwargs = {}
 if DATABASE_URL.startswith("sqlite"):

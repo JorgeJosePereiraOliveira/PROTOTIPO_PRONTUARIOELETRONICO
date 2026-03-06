@@ -53,6 +53,11 @@ uvicorn src.gateway.infra.api.main:app --reload --port 8001
 - `AUTH_SERVICE_URL` (default: `http://localhost:8001`)
 - `PATIENT_SERVICE_URL` (default: `http://localhost:8002`)
 
+Hardening SEC-01:
+
+- Em `production`/`staging`, `AUTH_SERVICE_URL` e `PATIENT_SERVICE_URL` são obrigatórios.
+- Arquivo de referência: `.env.example`
+
 ## Testes
 
 ```bash

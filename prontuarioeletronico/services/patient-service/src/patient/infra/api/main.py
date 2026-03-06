@@ -34,6 +34,14 @@ app = FastAPI(
 )
 
 
+APP_ENV = os.getenv("APP_ENV", "development")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+if AUTH_SERVICE_URL is None:
+    if APP_ENV in {"production", "staging"}:
+        raise RuntimeError("AUTH_SERVICE_URL is required for production/staging")
+    AUTH_SERVICE_URL = "http://localhost:8001"
+
+
 class CreatePatientRequest(BaseModel):
     name: str
     cpf: str
@@ -79,7 +87,7 @@ _list_patients_usecase = ListPatientsUseCase(_repository)
 _update_patient_usecase = UpdatePatientUseCase(_repository)
 _delete_patient_usecase = DeletePatientUseCase(_repository)
 _auth_client = AuthServiceClient(
-    base_url=os.getenv("AUTH_SERVICE_URL", "http://localhost:8001"),
+    base_url=AUTH_SERVICE_URL,
 )
 _bearer_scheme = HTTPBearer(auto_error=False)
 

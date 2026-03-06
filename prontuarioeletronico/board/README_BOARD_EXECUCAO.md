@@ -16,6 +16,9 @@ Este diretório contém o board operacional do backlog técnico em formato execu
 - Evolução da MS-02 (integração por gateway):
   - [MS-02_ETAPA_GATEWAY_PLANO_EXECUTAVEL.md](MS-02_ETAPA_GATEWAY_PLANO_EXECUTAVEL.md)
   - [MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md](MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md)
+- Entrega da SEC-01:
+  - [SEC-01_PLANO_EXECUTAVEL_SEGREDOS_HARDENING.md](SEC-01_PLANO_EXECUTAVEL_SEGREDOS_HARDENING.md)
+  - [SEC-01_RELATORIO_TECNICO_SEGREDOS_HARDENING.md](SEC-01_RELATORIO_TECNICO_SEGREDOS_HARDENING.md)
 
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:

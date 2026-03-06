@@ -54,6 +54,11 @@ Configuração:
 - `AUTH_SERVICE_URL` (default: `http://localhost:8001`)
 - `PATIENT_DATABASE_URL` (default: `sqlite:///./patient.db`)
 
+Hardening SEC-01:
+
+- Em `production`/`staging`, `AUTH_SERVICE_URL` e `PATIENT_DATABASE_URL` são obrigatórios.
+- Arquivo de referência: `.env.example`
+
 ## Regras de validação (fase 1)
 
 - `name` com mínimo de 3 caracteres
