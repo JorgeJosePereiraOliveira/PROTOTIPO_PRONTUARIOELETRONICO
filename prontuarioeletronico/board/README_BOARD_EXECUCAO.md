@@ -22,6 +22,9 @@ Este diretório contém o board operacional do backlog técnico em formato execu
 - Entrega da SEC-01:
   - [SEC-01_PLANO_EXECUTAVEL_SEGREDOS_HARDENING.md](SEC-01_PLANO_EXECUTAVEL_SEGREDOS_HARDENING.md)
   - [SEC-01_RELATORIO_TECNICO_SEGREDOS_HARDENING.md](SEC-01_RELATORIO_TECNICO_SEGREDOS_HARDENING.md)
+- Entrega da MS-03:
+  - [MS-03_PLANO_EXECUTAVEL_EMR_SERVICE.md](MS-03_PLANO_EXECUTAVEL_EMR_SERVICE.md)
+  - [MS-03_RELATORIO_TECNICO_EMR_SERVICE.md](MS-03_RELATORIO_TECNICO_EMR_SERVICE.md)
 
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:
