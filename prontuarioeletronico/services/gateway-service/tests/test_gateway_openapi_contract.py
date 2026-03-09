@@ -23,6 +23,11 @@ def test_openapi_contains_gateway_auth_and_patient_paths():
     assert "put" in paths["/api/v1/patients/{patient_id}"]
     assert "delete" in paths["/api/v1/patients/{patient_id}"]
 
+    assert "/api/v1/emr/problems" in paths
+    assert "/api/v1/emr/problems/{problem_id}" in paths
+    assert "/api/v1/emr/soap" in paths
+    assert "/api/v1/emr/soap/{soap_id}" in paths
+
 
 def test_openapi_contains_login_schema_example():
     spec = client.get("/openapi.json").json()

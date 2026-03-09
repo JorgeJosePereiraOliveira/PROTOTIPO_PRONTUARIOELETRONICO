@@ -29,6 +29,18 @@
     "GET /api/v1/patients",
     "GET /api/v1/patients/{patient_id}",
     "PUT /api/v1/patients/{patient_id}",
-    "DELETE /api/v1/patients/{patient_id}"
+    "DELETE /api/v1/patients/{patient_id}",
+    "POST /api/v1/emr/problems",
+    "GET /api/v1/emr/problems/{problem_id}",
+    "POST /api/v1/emr/soap",
+    "GET /api/v1/emr/soap/{soap_id}"
+  ],
+  "emr-service": [
+    "GET /health",
+    "GET /api/v1/info",
+    "POST /api/v1/emr/problems",
+    "GET /api/v1/emr/problems/{problem_id}",
+    "POST /api/v1/emr/soap",
+    "GET /api/v1/emr/soap/{soap_id}"
   ]
 }

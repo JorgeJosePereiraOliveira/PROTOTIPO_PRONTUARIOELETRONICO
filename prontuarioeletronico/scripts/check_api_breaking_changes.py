@@ -34,6 +34,16 @@ SERVICES = {
             "APP_ENV": "test",
             "AUTH_SERVICE_URL": "http://localhost:8001",
             "PATIENT_SERVICE_URL": "http://localhost:8002",
+            "EMR_SERVICE_URL": "http://localhost:8003",
+        },
+    },
+    "emr-service": {
+        "service_root": ROOT / "services" / "emr-service",
+        "import_path": "src.emr.infra.api.main",
+        "env": {
+            "APP_ENV": "test",
+            "EMR_DATABASE_URL": "sqlite:///./test_emr_compat.db",
+            "AUTH_SERVICE_URL": "http://localhost:8001",
         },
     },
 }
