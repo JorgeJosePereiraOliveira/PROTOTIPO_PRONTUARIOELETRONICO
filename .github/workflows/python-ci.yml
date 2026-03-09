@@ -76,9 +76,11 @@ jobs:
         pip install -r prontuarioeletronico/services/auth-service/requirements.txt
         pip install pytest
     - name: Run auth-service tests (inclui OpenAPI contrato)
+      working-directory: prontuarioeletronico/services/auth-service
+      env:
+        PYTHONPATH: .
       run: |
-        cd prontuarioeletronico/services/auth-service
-        pytest -q tests
+        python -m pytest -q tests
 
   patient-service-tests:
     runs-on: ubuntu-latest
@@ -92,11 +94,14 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r prontuarioeletronico/services/patient-service/requirements.txt
+        pip install -r prontuarioeletronico/services/auth-service/requirements.txt
         pip install pytest
     - name: Run patient-service tests (inclui OpenAPI contrato)
+      working-directory: prontuarioeletronico/services/patient-service
+      env:
+        PYTHONPATH: .
       run: |
-        cd prontuarioeletronico/services/patient-service
-        pytest -q tests
+        python -m pytest -q tests
 
   emr-service-tests:
     runs-on: ubuntu-latest
@@ -110,11 +115,14 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r prontuarioeletronico/services/emr-service/requirements.txt
+        pip install -r prontuarioeletronico/services/auth-service/requirements.txt
         pip install pytest
     - name: Run emr-service tests (inclui OpenAPI contrato)
+      working-directory: prontuarioeletronico/services/emr-service
+      env:
+        PYTHONPATH: .
       run: |
-        cd prontuarioeletronico/services/emr-service
-        pytest -q tests
+        python -m pytest -q tests
 
   gateway-integration-tests:
     runs-on: ubuntu-latest
@@ -133,6 +141,8 @@ jobs:
         pip install -r prontuarioeletronico/services/emr-service/requirements.txt
         pip install pytest
     - name: Run gateway integration tests
+      working-directory: prontuarioeletronico/services/gateway-service
+      env:
+        PYTHONPATH: .
       run: |
-        cd prontuarioeletronico/services/gateway-service
-        pytest -q tests
+        python -m pytest -q tests
