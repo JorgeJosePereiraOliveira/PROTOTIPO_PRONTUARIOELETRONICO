@@ -479,17 +479,22 @@ Status parcial de execução:
    - agendamento desacoplado do EMR;
    - endpoints create/get/list/delete com JWT/RBAC;
    - integração via gateway + suíte no CI (`scheduling-service-tests`).
+- CLN-01 (US-3.1 Validação de completude SOAP) concluída com:
+   - regras de completude e coerencia clinica no registro SOAP;
+   - bloqueio de placeholders e secoes clinicas inconsistentes;
+   - cobertura em testes de API, E2E e nao regressao no gateway.
 - Baseline atual de CI em `main`:
-   - commit `0e104e2957cd0b24261eea3f8513afe5d6a18472`;
-   - run `22904008755` em `success`.
+   - commit `535f4f55d98fd74ad81dc8cb33918b1825aebffb`;
+   - run `22906978018` em `success`.
 - Próximo passo de desenvolvimento (P0 aberto):
-   - CLN-01 (issue #10): validação de completude SOAP.
+   - MS-05 (issue #11): Implementar Audit Service.
 - Evidências consolidadas:
    - `board/MS-01_RELATORIO_TECNICO_DETALHADO.md`
    - `board/MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md`
    - `board/SEC-01_RELATORIO_TECNICO_SEGREDOS_HARDENING.md`
    - `board/MS-03_RELATORIO_TECNICO_EMR_SERVICE.md`
    - `board/MS-04_RELATORIO_TECNICO_SCHEDULING_SERVICE.md`
+   - `board/CLN-01_RELATORIO_TECNICO_VALIDACAO_COMPLETUDE_SOAP.md`
 
 ---
 
