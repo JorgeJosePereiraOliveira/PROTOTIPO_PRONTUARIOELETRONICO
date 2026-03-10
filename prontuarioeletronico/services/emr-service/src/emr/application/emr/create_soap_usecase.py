@@ -71,8 +71,25 @@ class CreateSOAPUseCase(UseCase[CreateSOAPInputDTO, CreateSOAPOutputDTO]):
                     f"{field_name} must have at least {self._MIN_CLINICAL_TEXT_LENGTH} characters"
                 )
 
-        if assessment.casefold() == plan.casefold():
+        normalized_sections = {
+            "subjective": subjective.casefold(),
+            "objective": objective.casefold(),
+            "assessment": assessment.casefold(),
+            "plan": plan.casefold(),
+        }
+
+        if normalized_sections["subjective"] == normalized_sections["objective"]:
+            raise ValueError("subjective and objective must not be identical")
+        if normalized_sections["assessment"] == normalized_sections["plan"]:
             raise ValueError("assessment and plan must not be identical")
+        if normalized_sections["assessment"] == normalized_sections["subjective"]:
+            raise ValueError("assessment must not be identical to subjective")
+        if normalized_sections["assessment"] == normalized_sections["objective"]:
+            raise ValueError("assessment must not be identical to objective")
+        if normalized_sections["plan"] == normalized_sections["subjective"]:
+            raise ValueError("plan must not be identical to subjective")
+        if normalized_sections["plan"] == normalized_sections["objective"]:
+            raise ValueError("plan must not be identical to objective")
 
         problem = self._problem_repository.find_by_id(problem_id)
         if problem is None:

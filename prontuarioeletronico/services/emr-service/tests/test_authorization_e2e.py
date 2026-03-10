@@ -111,3 +111,40 @@ def test_emr_rejects_invalid_real_token_e2e():
         headers={"Authorization": "Bearer token-invalido"},
     )
     assert response.status_code == 401
+
+
+def test_emr_rejects_incoherent_soap_with_real_token_e2e():
+    auth_client = TestClient(auth_app)
+    emr_client = TestClient(emr_main.app)
+
+    professional_tokens = _login(auth_client, "profissional", "prof123")
+    auth_header = {"Authorization": f"Bearer {professional_tokens['access_token']}"}
+
+    create_problem = emr_client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-e2e-2",
+            "description": "Dor toracica atipica",
+            "status": "active",
+        },
+        headers=auth_header,
+    )
+    assert create_problem.status_code == 201
+    problem_id = create_problem.json()["id"]
+
+    repeated_text = "Paciente em bom estado geral, sem sinais de gravidade imediata."
+    create_soap = emr_client.post(
+        "/api/v1/emr/soap",
+        json={
+            "problem_id": problem_id,
+            "patient_id": "patient-e2e-2",
+            "professional_id": "prof-e2e-2",
+            "subjective": repeated_text,
+            "objective": repeated_text,
+            "assessment": "Dor toracica sem indicios de sindrome coronariana aguda.",
+            "plan": "Analgesia e retorno imediato se piora clinica.",
+        },
+        headers=auth_header,
+    )
+    assert create_soap.status_code == 400
+    assert create_soap.json()["detail"] == "subjective and objective must not be identical"

@@ -207,6 +207,39 @@ def test_create_soap_rejects_identical_assessment_and_plan(monkeypatch):
     assert response.json()["detail"] == "assessment and plan must not be identical"
 
 
+def test_create_soap_rejects_identical_subjective_and_objective(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    problem = client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-204",
+            "description": "Cefaleia persistente",
+            "status": "active",
+        },
+        headers=AUTH_HEADER,
+    ).json()
+
+    same_text = "Paciente relata dor frontal de forte intensidade ha 2 dias."
+
+    response = client.post(
+        "/api/v1/emr/soap",
+        json={
+            "problem_id": problem["id"],
+            "patient_id": "patient-204",
+            "professional_id": "prof-06",
+            "subjective": same_text,
+            "objective": same_text,
+            "assessment": "Cefaleia sem sinais de alarme no momento.",
+            "plan": "Analgesia, hidratacao e reavaliacao em 48 horas.",
+        },
+        headers=AUTH_HEADER,
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "subjective and objective must not be identical"
+
+
 def test_protected_endpoints_reject_invalid_token(monkeypatch):
     _auth_invalid(monkeypatch)
 

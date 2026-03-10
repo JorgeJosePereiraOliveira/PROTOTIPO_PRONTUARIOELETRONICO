@@ -210,6 +210,45 @@ def test_gateway_end_to_end_emr_flow():
     assert get_soap.json()["problem_id"] == problem_id
 
 
+def test_gateway_propagates_emr_soap_validation_errors():
+    gateway_client = TestClient(gateway_main.app)
+    prof_tokens = _gateway_login(gateway_client, "profissional", "prof123")
+    auth_header = {"Authorization": f"Bearer {prof_tokens['access_token']}"}
+
+    create_problem = gateway_client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-gw-emr-2",
+            "description": "Dor abdominal funcional",
+            "status": "active",
+        },
+        headers=auth_header,
+    )
+    assert create_problem.status_code == 201
+    problem_id = create_problem.json()["id"]
+
+    repeated_text = "Paciente sem sinais de alarme, hidratacao e estado geral preservados."
+    invalid_soap = gateway_client.post(
+        "/api/v1/emr/soap",
+        json={
+            "problem_id": problem_id,
+            "patient_id": "patient-gw-emr-2",
+            "professional_id": "prof-gateway-2",
+            "subjective": repeated_text,
+            "objective": repeated_text,
+            "assessment": "Dor abdominal sem defesa involuntaria ao exame.",
+            "plan": "Orientacao dietetica e retorno se persistencia dos sintomas.",
+        },
+        headers=auth_header,
+    )
+
+    assert invalid_soap.status_code == 400
+    assert (
+        invalid_soap.json()["detail"]
+        == "subjective and objective must not be identical"
+    )
+
+
 def test_gateway_rejects_missing_or_invalid_token():
     gateway_client = TestClient(gateway_main.app)
 

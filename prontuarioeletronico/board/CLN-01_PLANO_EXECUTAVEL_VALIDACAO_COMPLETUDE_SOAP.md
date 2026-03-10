@@ -85,13 +85,13 @@ Gateway (checagem de nao regressao):
 
 ## 6) Criterios de aceite da CLN-01
 
-- [ ] Regras de completude SOAP implementadas e ativas em runtime.
-- [ ] Regras de coerencia basica implementadas.
-- [ ] Mensagens de erro clinicas claras para cada violacao.
-- [ ] Fluxo de persistencia bloqueia SOAP invalido.
-- [ ] Testes do `emr-service` cobrindo cenarios validos e invalidos.
-- [ ] Nao regressao no gateway e na compatibilidade de API.
-- [ ] Evidencia de run verde em `main` para aceite formal.
+- [x] Regras de completude SOAP implementadas e ativas em runtime.
+- [x] Regras de coerencia basica implementadas.
+- [x] Mensagens de erro clinicas claras para cada violacao.
+- [x] Fluxo de persistencia bloqueia SOAP invalido.
+- [x] Testes do `emr-service` cobrindo cenarios validos e invalidos.
+- [x] Nao regressao no gateway e na compatibilidade de API.
+- [x] Evidencia de run verde em `main` para aceite formal.
 
 ---
 
