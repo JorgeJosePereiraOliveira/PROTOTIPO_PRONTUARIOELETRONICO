@@ -28,15 +28,19 @@ Este diretório contém o board operacional do backlog técnico em formato execu
 - Proxima entrega (MS-04):
   - [MS-04_PLANO_EXECUTAVEL_SCHEDULING_SERVICE.md](MS-04_PLANO_EXECUTAVEL_SCHEDULING_SERVICE.md)
   - [MS-04_RELATORIO_TECNICO_SCHEDULING_SERVICE.md](MS-04_RELATORIO_TECNICO_SCHEDULING_SERVICE.md)
-- Proximo passo (CLN-01):
+- Entrega recente (CLN-01):
   - [CLN-01_PLANO_EXECUTAVEL_VALIDACAO_COMPLETUDE_SOAP.md](CLN-01_PLANO_EXECUTAVEL_VALIDACAO_COMPLETUDE_SOAP.md)
   - [CLN-01_RELATORIO_TECNICO_VALIDACAO_COMPLETUDE_SOAP.md](CLN-01_RELATORIO_TECNICO_VALIDACAO_COMPLETUDE_SOAP.md)
+- Entrega em andamento (MS-05):
+  - [MS-05_PLANO_EXECUTAVEL_AUDIT_SERVICE.md](MS-05_PLANO_EXECUTAVEL_AUDIT_SERVICE.md)
+- Protocolo de testabilidade do prototipo:
+  - [TESTABILIDADE_PROTOCOLO_EXECUCAO.md](TESTABILIDADE_PROTOCOLO_EXECUCAO.md)
 
 ## Estado atual de CI (baseline)
 
-- Baseline de referencia em `main`: commit `f9963a3eb774f083375ba881a24df3f8275165bb`
-- Run de referencia: `22902427074`
-- URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/22902427074`
+- Baseline de referencia em `main`: commit `b5abc68e25583df5e4b2652fbe787ddfc2b20f2f`
+- Run de referencia: `22909887584`
+- URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/22909887584`
 - Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `scheduling-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`.
 
 Observacao:

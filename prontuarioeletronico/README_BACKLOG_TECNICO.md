@@ -484,10 +484,13 @@ Status parcial de execução:
    - bloqueio de placeholders e secoes clinicas inconsistentes;
    - cobertura em testes de API, E2E e nao regressao no gateway.
 - Baseline atual de CI em `main`:
-   - commit `535f4f55d98fd74ad81dc8cb33918b1825aebffb`;
-   - run `22906978018` em `success`.
+   - commit `b5abc68e25583df5e4b2652fbe787ddfc2b20f2f`;
+   - run `22909887584` em `success`.
 - Próximo passo de desenvolvimento (P0 aberto):
    - MS-05 (issue #11): Implementar Audit Service.
+- MS-05 iniciada (fase de planejamento/documentacao) com:
+   - plano executavel da issue #11 no board;
+   - protocolo de testabilidade do prototipo para padrao de evidencias.
 - Evidências consolidadas:
    - `board/MS-01_RELATORIO_TECNICO_DETALHADO.md`
    - `board/MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md`
