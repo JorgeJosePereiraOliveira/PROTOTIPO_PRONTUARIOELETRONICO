@@ -31,10 +31,10 @@ Este diretório contém o board operacional do backlog técnico em formato execu
 
 ## Estado atual de CI (baseline)
 
-- Baseline de referencia em `main`: commit `7a968c9b6add267a30610fbcaf8b85b83e59c43a`
-- Run de referencia: `22853210684`
-- URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/22853210684`
-- Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`.
+- Baseline de referencia em `main`: commit `f9963a3eb774f083375ba881a24df3f8275165bb`
+- Run de referencia: `22902427074`
+- URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/22902427074`
+- Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `scheduling-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`.
 
 Observacao:
 - Falhas historicas em runs antigos podem existir e foram mantidas para rastreabilidade.
