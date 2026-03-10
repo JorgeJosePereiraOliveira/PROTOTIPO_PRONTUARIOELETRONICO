@@ -133,9 +133,9 @@ A MS-05 foi concluida ponta a ponta com um `audit-service` funcional e integrado
 
 Para aceite formal da issue #11, considerar o commit final desta entrega em `main` e seu run em `success`.
 
-- Commit final da MS-05: `__PREENCHER_APOS_PUSH__`
-- Run de referencia: `__PREENCHER_APOS_PUSH__`
-- URL: `__PREENCHER_APOS_PUSH__`
+- Commit final da MS-05: `b24cd7d8d10556fad2fd046a7468fe6727e8c8b6`
+- Run de referencia: `22915884677`
+- URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/22915884677`
 
 Nota de rastreabilidade:
 - Runs historicos com falha seguem preservados para historico tecnico.
