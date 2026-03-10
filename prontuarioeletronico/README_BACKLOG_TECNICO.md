@@ -471,10 +471,25 @@ Status parcial de execução:
    - hardening de segredos/URLs por ambiente;
    - `.env.example` por serviço;
    - varredura de segurança no CI (`security-baseline`).
+- MS-03 (US-2.3 EMR Service) concluída com:
+   - operações RCOP/SOAP por API;
+   - persistência SQLAlchemy;
+   - integração via gateway + testes de contrato.
+- MS-04 (US-2.3 Scheduling Service) concluída com:
+   - agendamento desacoplado do EMR;
+   - endpoints create/get/list/delete com JWT/RBAC;
+   - integração via gateway + suíte no CI (`scheduling-service-tests`).
+- Baseline atual de CI em `main`:
+   - commit `0e104e2957cd0b24261eea3f8513afe5d6a18472`;
+   - run `22904008755` em `success`.
+- Próximo passo de desenvolvimento (P0 aberto):
+   - CLN-01 (issue #10): validação de completude SOAP.
 - Evidências consolidadas:
    - `board/MS-01_RELATORIO_TECNICO_DETALHADO.md`
    - `board/MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md`
    - `board/SEC-01_RELATORIO_TECNICO_SEGREDOS_HARDENING.md`
+   - `board/MS-03_RELATORIO_TECNICO_EMR_SERVICE.md`
+   - `board/MS-04_RELATORIO_TECNICO_SCHEDULING_SERVICE.md`
 
 ---
 
