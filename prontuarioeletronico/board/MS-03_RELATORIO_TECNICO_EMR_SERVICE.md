@@ -123,3 +123,26 @@ Observação:
 ## 5) Conclusão
 
 A MS-03 foi implementada ponta a ponta no fluxo planejado: serviço EMR funcional com RCOP/SOAP, segurança integrada ao auth-service, persistência SQLAlchemy, cobertura de testes em nível de serviço e gateway, e inclusão completa nos guardrails de CI, segurança e compatibilidade de API.
+
+---
+
+## 6) Baseline de estabilidade (CI)
+
+Para fins de governança e rastreabilidade do TCC, adota-se como baseline operacional o ultimo commit em `main` com checks obrigatorios em status `success`.
+
+- Commit baseline: `7a968c9b6add267a30610fbcaf8b85b83e59c43a`
+- Run de referencia no GitHub Actions: `22853210684`
+- URL do run: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/22853210684`
+
+Checks obrigatorios confirmados no baseline:
+- `core-tests` -> success
+- `auth-service-tests` -> success
+- `patient-service-tests` -> success
+- `emr-service-tests` -> success
+- `gateway-integration-tests` -> success
+- `api-compatibility-check` -> success
+- `security-baseline` -> success
+
+Nota de rastreabilidade:
+- Runs historicos com `failure` foram preservados como evidencia da evolucao tecnica do projeto.
+- Para aceite formal da issue, considera-se o baseline atual em `main` com checks obrigatorios verdes.

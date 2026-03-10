@@ -26,6 +26,17 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - [MS-03_PLANO_EXECUTAVEL_EMR_SERVICE.md](MS-03_PLANO_EXECUTAVEL_EMR_SERVICE.md)
   - [MS-03_RELATORIO_TECNICO_EMR_SERVICE.md](MS-03_RELATORIO_TECNICO_EMR_SERVICE.md)
 
+## Estado atual de CI (baseline)
+
+- Baseline de referencia em `main`: commit `7a968c9b6add267a30610fbcaf8b85b83e59c43a`
+- Run de referencia: `22853210684`
+- URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/22853210684`
+- Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`.
+
+Observacao:
+- Falhas historicas em runs antigos podem existir e foram mantidas para rastreabilidade.
+- Para operacao corrente e encerramento de issue, considerar sempre o ultimo baseline verde em `main`.
+
 ## Arquivos
 - `board_backlog_executavel.csv` → base única com:
   - épico
@@ -139,3 +150,11 @@ Para execução da etapa integrada por borda (gateway), utilizar:
 
 - Plano executável: `MS-02_ETAPA_GATEWAY_PLANO_EXECUTAVEL.md`
 - Relatório de ações realizadas na preparação: `MS-02_ETAPA_GATEWAY_RELATORIO_ACOES_REALIZADAS.md`
+
+---
+
+## 10) Texto padrão de critério de aceite (proximas issues)
+
+Utilizar o texto abaixo no fechamento tecnico de novas issues:
+
+"Para aceite formal desta issue, considera-se o ultimo commit em `main` com checks obrigatorios em status `success` (baseline de estabilidade), alem do cumprimento dos criterios funcionais e documentais definidos no plano executavel da entrega. Runs historicos com falha sao preservados exclusivamente para rastreabilidade da evolucao tecnica do projeto."
