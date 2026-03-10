@@ -31,6 +31,9 @@ class CreateSOAPOutputDTO:
 
 
 class CreateSOAPUseCase(UseCase[CreateSOAPInputDTO, CreateSOAPOutputDTO]):
+    _MIN_CLINICAL_TEXT_LENGTH = 10
+    _PLACEHOLDER_VALUES = {"n/a", "na", "-", ".", "sem dados"}
+
     def __init__(
         self,
         soap_repository: SOAPRepositoryInterface,
@@ -61,8 +64,15 @@ class CreateSOAPUseCase(UseCase[CreateSOAPInputDTO, CreateSOAPOutputDTO]):
             "assessment": assessment,
             "plan": plan,
         }.items():
-            if len(value) < 3:
-                raise ValueError(f"{field_name} must have at least 3 characters")
+            if value.casefold() in self._PLACEHOLDER_VALUES:
+                raise ValueError(f"{field_name} cannot use placeholder values")
+            if len(value) < self._MIN_CLINICAL_TEXT_LENGTH:
+                raise ValueError(
+                    f"{field_name} must have at least {self._MIN_CLINICAL_TEXT_LENGTH} characters"
+                )
+
+        if assessment.casefold() == plan.casefold():
+            raise ValueError("assessment and plan must not be identical")
 
         problem = self._problem_repository.find_by_id(problem_id)
         if problem is None:

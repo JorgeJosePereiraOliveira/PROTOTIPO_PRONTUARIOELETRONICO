@@ -112,6 +112,101 @@ def test_create_soap_rejects_missing_problem(monkeypatch):
     assert response.json()["detail"] == "problem not found"
 
 
+def test_create_soap_rejects_short_clinical_sections(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    problem = client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-201",
+            "description": "Dor cronica em ombro direito",
+            "status": "active",
+        },
+        headers=AUTH_HEADER,
+    ).json()
+
+    response = client.post(
+        "/api/v1/emr/soap",
+        json={
+            "problem_id": problem["id"],
+            "patient_id": "patient-201",
+            "professional_id": "prof-03",
+            "subjective": "Dor",
+            "objective": "PA 120x80",
+            "assessment": "Quadro leve",
+            "plan": "Reavaliar",
+        },
+        headers=AUTH_HEADER,
+    )
+
+    assert response.status_code == 400
+    assert "subjective must have at least 10 characters" in response.json()["detail"]
+
+
+def test_create_soap_rejects_placeholder_values(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    problem = client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-202",
+            "description": "Cefaleia tensional recorrente",
+            "status": "active",
+        },
+        headers=AUTH_HEADER,
+    ).json()
+
+    response = client.post(
+        "/api/v1/emr/soap",
+        json={
+            "problem_id": problem["id"],
+            "patient_id": "patient-202",
+            "professional_id": "prof-04",
+            "subjective": "sem dados",
+            "objective": "Exame fisico dentro da normalidade.",
+            "assessment": "Cefaleia primaria sem sinais de alarme.",
+            "plan": "Orientacoes gerais e analgesico se necessario.",
+        },
+        headers=AUTH_HEADER,
+    )
+
+    assert response.status_code == 400
+    assert "subjective cannot use placeholder values" in response.json()["detail"]
+
+
+def test_create_soap_rejects_identical_assessment_and_plan(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    problem = client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-203",
+            "description": "Lombalgia mecanica",
+            "status": "active",
+        },
+        headers=AUTH_HEADER,
+    ).json()
+
+    same_text = "Melhorar higiene do sono e manter atividade fisica regular."
+
+    response = client.post(
+        "/api/v1/emr/soap",
+        json={
+            "problem_id": problem["id"],
+            "patient_id": "patient-203",
+            "professional_id": "prof-05",
+            "subjective": "Paciente relata dor lombar ao final do dia de trabalho.",
+            "objective": "Sem deficit neurologico focal ao exame fisico.",
+            "assessment": same_text,
+            "plan": same_text,
+        },
+        headers=AUTH_HEADER,
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "assessment and plan must not be identical"
+
+
 def test_protected_endpoints_reject_invalid_token(monkeypatch):
     _auth_invalid(monkeypatch)
 
