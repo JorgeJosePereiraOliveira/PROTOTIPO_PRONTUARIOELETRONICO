@@ -36,6 +36,7 @@ SERVICES = {
             "PATIENT_SERVICE_URL": "http://localhost:8002",
             "EMR_SERVICE_URL": "http://localhost:8003",
             "SCHEDULING_SERVICE_URL": "http://localhost:8004",
+            "AUDIT_SERVICE_URL": "http://localhost:8005",
         },
     },
     "emr-service": {
@@ -53,6 +54,15 @@ SERVICES = {
         "env": {
             "APP_ENV": "test",
             "SCHEDULING_DATABASE_URL": "sqlite:///./test_scheduling_compat.db",
+            "AUTH_SERVICE_URL": "http://localhost:8001",
+        },
+    },
+    "audit-service": {
+        "service_root": ROOT / "services" / "audit-service",
+        "import_path": "src.audit.infra.api.main",
+        "env": {
+            "APP_ENV": "test",
+            "AUDIT_DATABASE_URL": "sqlite:///./test_audit_compat.db",
             "AUTH_SERVICE_URL": "http://localhost:8001",
         },
     },

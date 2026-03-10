@@ -23,6 +23,7 @@ jobs:
         pip install -r prontuarioeletronico/services/gateway-service/requirements.txt
         pip install -r prontuarioeletronico/services/emr-service/requirements.txt
         pip install -r prontuarioeletronico/services/scheduling-service/requirements.txt
+        pip install -r prontuarioeletronico/services/audit-service/requirements.txt
     - name: Run API breaking change check
       run: |
         python prontuarioeletronico/scripts/check_api_breaking_changes.py
@@ -46,6 +47,7 @@ jobs:
         bandit -r prontuarioeletronico/services/gateway-service/src -lll -iii
         bandit -r prontuarioeletronico/services/emr-service/src -lll -iii
         bandit -r prontuarioeletronico/services/scheduling-service/src -lll -iii
+        bandit -r prontuarioeletronico/services/audit-service/src -lll -iii
 
   core-tests:
     runs-on: ubuntu-latest
@@ -147,6 +149,27 @@ jobs:
       run: |
         python -m pytest -q tests
 
+  audit-service-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install audit-service dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r prontuarioeletronico/services/audit-service/requirements.txt
+        pip install -r prontuarioeletronico/services/auth-service/requirements.txt
+        pip install pytest
+    - name: Run audit-service tests (inclui OpenAPI contrato)
+      working-directory: prontuarioeletronico/services/audit-service
+      env:
+        PYTHONPATH: .
+      run: |
+        python -m pytest -q tests
+
   gateway-integration-tests:
     runs-on: ubuntu-latest
     steps:
@@ -163,6 +186,7 @@ jobs:
         pip install -r prontuarioeletronico/services/patient-service/requirements.txt
         pip install -r prontuarioeletronico/services/emr-service/requirements.txt
         pip install -r prontuarioeletronico/services/scheduling-service/requirements.txt
+        pip install -r prontuarioeletronico/services/audit-service/requirements.txt
         pip install pytest
     - name: Run gateway integration tests
       working-directory: prontuarioeletronico/services/gateway-service

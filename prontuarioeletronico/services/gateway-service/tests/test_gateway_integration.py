@@ -10,6 +10,7 @@ AUTH_SERVICE_ROOT = SERVICES_DIR / "auth-service"
 PATIENT_SERVICE_ROOT = SERVICES_DIR / "patient-service"
 EMR_SERVICE_ROOT = SERVICES_DIR / "emr-service"
 SCHEDULING_SERVICE_ROOT = SERVICES_DIR / "scheduling-service"
+AUDIT_SERVICE_ROOT = SERVICES_DIR / "audit-service"
 
 if str(AUTH_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(AUTH_SERVICE_ROOT))
@@ -19,15 +20,19 @@ if str(EMR_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(EMR_SERVICE_ROOT))
 if str(SCHEDULING_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(SCHEDULING_SERVICE_ROOT))
+if str(AUDIT_SERVICE_ROOT) not in sys.path:
+    sys.path.insert(0, str(AUDIT_SERVICE_ROOT))
 
 os.environ.setdefault("AUTH_JWT_SECRET", "test-secret-gateway")
 os.environ.setdefault("AUTH_DATABASE_URL", "sqlite:///./test_auth_gateway.db")
 os.environ.setdefault("PATIENT_DATABASE_URL", "sqlite:///./test_patient_gateway.db")
 os.environ.setdefault("EMR_DATABASE_URL", "sqlite:///./test_emr_gateway.db")
 os.environ.setdefault("SCHEDULING_DATABASE_URL", "sqlite:///./test_scheduling_gateway.db")
+os.environ.setdefault("AUDIT_DATABASE_URL", "sqlite:///./test_audit_gateway.db")
 
 from src.auth.infra.api.main import app as auth_app
 from src.emr.infra.api import main as emr_main
+from src.audit.infra.api import main as audit_main
 from src.scheduling.infra.api import main as scheduling_main
 from src.patient.infra.api import main as patient_main
 from src.gateway.infra.api import main as gateway_main
@@ -92,14 +97,17 @@ def setup_function() -> None:
     patient_main._auth_client = LocalAuthServiceClient(auth_client)
     emr_main._auth_client = LocalAuthServiceClient(auth_client)
     scheduling_main._auth_client = LocalAuthServiceClient(auth_client)
+    audit_main._auth_client = LocalAuthServiceClient(auth_client)
     patient_main._reset_for_tests()
     emr_main._reset_for_tests()
     scheduling_main._reset_for_tests()
+    audit_main._reset_for_tests()
 
     gateway_main._auth_proxy = LocalServiceProxy(auth_client)
     gateway_main._patient_proxy = LocalServiceProxy(TestClient(patient_main.app))
     gateway_main._emr_proxy = LocalServiceProxy(TestClient(emr_main.app))
     gateway_main._scheduling_proxy = LocalServiceProxy(TestClient(scheduling_main.app))
+    gateway_main._audit_proxy = LocalServiceProxy(TestClient(audit_main.app))
 
 
 def _gateway_login(client: TestClient, username: str, password: str) -> dict:
@@ -309,3 +317,50 @@ def test_gateway_end_to_end_scheduling_flow():
     )
     assert allowed_delete.status_code == 200
     assert allowed_delete.json()["deleted"] is True
+
+
+def test_gateway_end_to_end_audit_flow():
+    gateway_client = TestClient(gateway_main.app)
+    admin_tokens = _gateway_login(gateway_client, "admin", "admin123")
+    prof_tokens = _gateway_login(gateway_client, "profissional", "prof123")
+    auth_header_prof = {"Authorization": f"Bearer {prof_tokens['access_token']}"}
+    auth_header_admin = {"Authorization": f"Bearer {admin_tokens['access_token']}"}
+
+    create_response = gateway_client.post(
+        "/api/v1/audit/events",
+        json={
+            "actor_id": "prof-gateway-audit-1",
+            "actor_role": "profissional",
+            "context": "emr",
+            "operation": "create",
+            "resource_type": "soap_record",
+            "resource_id": "soap-gw-1",
+            "status": "success",
+            "occurred_at": "2026-03-10T13:30:00Z",
+            "metadata": {"source": "gateway"},
+        },
+        headers=auth_header_prof,
+    )
+    assert create_response.status_code == 201
+    event_id = create_response.json()["id"]
+
+    forbidden_list = gateway_client.get(
+        "/api/v1/audit/events",
+        headers=auth_header_prof,
+    )
+    assert forbidden_list.status_code == 403
+
+    list_response = gateway_client.get(
+        "/api/v1/audit/events",
+        params={"actor_id": "prof-gateway-audit-1", "operation": "create"},
+        headers=auth_header_admin,
+    )
+    assert list_response.status_code == 200
+    assert len(list_response.json()) == 1
+
+    get_response = gateway_client.get(
+        f"/api/v1/audit/events/{event_id}",
+        headers=auth_header_admin,
+    )
+    assert get_response.status_code == 200
+    assert get_response.json()["id"] == event_id

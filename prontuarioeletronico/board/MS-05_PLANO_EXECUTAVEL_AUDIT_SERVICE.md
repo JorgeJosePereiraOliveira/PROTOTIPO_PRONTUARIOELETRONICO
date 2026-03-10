@@ -98,13 +98,13 @@ Padroes obrigatorios:
 
 ## 6) Criterios de aceite da MS-05
 
-- [ ] `audit-service` criado no padrao arquitetural.
-- [ ] Registro de eventos criticos funcional.
-- [ ] Consulta de auditoria por usuario/operacao funcional.
-- [ ] Persistencia e filtros minimos operacionais.
-- [ ] Cobertura de testes no servico e via gateway.
-- [ ] CI/seguranca/compatibilidade atualizados sem regressao.
-- [ ] Evidencia de run verde em `main`.
+- [x] `audit-service` criado no padrao arquitetural.
+- [x] Registro de eventos criticos funcional.
+- [x] Consulta de auditoria por usuario/operacao funcional.
+- [x] Persistencia e filtros minimos operacionais.
+- [x] Cobertura de testes no servico e via gateway.
+- [x] CI/seguranca/compatibilidade atualizados sem regressao.
+- [x] Evidencia de run verde em `main`.
 
 ---
 

@@ -66,11 +66,24 @@ class AppointmentPayload(BaseModel):
     reason: str
 
 
+class AuditEventPayload(BaseModel):
+    actor_id: str
+    actor_role: str
+    context: str
+    operation: str
+    resource_type: str
+    resource_id: str
+    status: str
+    occurred_at: str
+    metadata: dict | None = None
+
+
 APP_ENV = os.getenv("APP_ENV", "development")
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
 PATIENT_SERVICE_URL = os.getenv("PATIENT_SERVICE_URL")
 EMR_SERVICE_URL = os.getenv("EMR_SERVICE_URL")
 SCHEDULING_SERVICE_URL = os.getenv("SCHEDULING_SERVICE_URL")
+AUDIT_SERVICE_URL = os.getenv("AUDIT_SERVICE_URL")
 
 if APP_ENV in {"production", "staging"}:
     if AUTH_SERVICE_URL is None:
@@ -81,6 +94,8 @@ if APP_ENV in {"production", "staging"}:
         raise RuntimeError("EMR_SERVICE_URL is required for production/staging")
     if SCHEDULING_SERVICE_URL is None:
         raise RuntimeError("SCHEDULING_SERVICE_URL is required for production/staging")
+    if AUDIT_SERVICE_URL is None:
+        raise RuntimeError("AUDIT_SERVICE_URL is required for production/staging")
 
 if AUTH_SERVICE_URL is None:
     AUTH_SERVICE_URL = "http://localhost:8001"
@@ -90,11 +105,14 @@ if EMR_SERVICE_URL is None:
     EMR_SERVICE_URL = "http://localhost:8003"
 if SCHEDULING_SERVICE_URL is None:
     SCHEDULING_SERVICE_URL = "http://localhost:8004"
+if AUDIT_SERVICE_URL is None:
+    AUDIT_SERVICE_URL = "http://localhost:8005"
 
 _auth_proxy = HttpServiceProxy(base_url=AUTH_SERVICE_URL)
 _patient_proxy = HttpServiceProxy(base_url=PATIENT_SERVICE_URL)
 _emr_proxy = HttpServiceProxy(base_url=EMR_SERVICE_URL)
 _scheduling_proxy = HttpServiceProxy(base_url=SCHEDULING_SERVICE_URL)
+_audit_proxy = HttpServiceProxy(base_url=AUDIT_SERVICE_URL)
 
 
 def _forward_response(status_code: int, body: object) -> JSONResponse:
@@ -112,7 +130,7 @@ def service_info():
         "service": "gateway",
         "architecture": "clean-architecture",
         "layers": ["domain", "application", "infra"],
-        "routes": ["auth", "patients", "emr", "scheduling"],
+        "routes": ["auth", "patients", "emr", "scheduling", "audit"],
     }
 
 
@@ -308,6 +326,57 @@ def delete_appointment(appointment_id: str, authorization: str | None = Header(d
     status_code, body = _scheduling_proxy.request(
         method="DELETE",
         path=f"/api/v1/scheduling/appointments/{appointment_id}",
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.post("/api/v1/audit/events")
+def create_audit_event(
+    payload: AuditEventPayload,
+    authorization: str | None = Header(default=None),
+):
+    status_code, body = _audit_proxy.request(
+        method="POST",
+        path="/api/v1/audit/events",
+        json_body=payload.model_dump(),
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.get("/api/v1/audit/events")
+def list_audit_events(
+    actor_id: str | None = Query(default=None),
+    operation: str | None = Query(default=None),
+    from_datetime: str | None = Query(default=None, alias="from"),
+    to_datetime: str | None = Query(default=None, alias="to"),
+    authorization: str | None = Header(default=None),
+):
+    params: dict[str, str] = {}
+    if actor_id is not None:
+        params["actor_id"] = actor_id
+    if operation is not None:
+        params["operation"] = operation
+    if from_datetime is not None:
+        params["from"] = from_datetime
+    if to_datetime is not None:
+        params["to"] = to_datetime
+
+    status_code, body = _audit_proxy.request(
+        method="GET",
+        path="/api/v1/audit/events",
+        params=params or None,
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.get("/api/v1/audit/events/{event_id}")
+def get_audit_event(event_id: str, authorization: str | None = Header(default=None)):
+    status_code, body = _audit_proxy.request(
+        method="GET",
+        path=f"/api/v1/audit/events/{event_id}",
         authorization=authorization,
     )
     return _forward_response(status_code, body)

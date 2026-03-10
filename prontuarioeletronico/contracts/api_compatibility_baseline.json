@@ -37,7 +37,10 @@
     "POST /api/v1/scheduling/appointments",
     "GET /api/v1/scheduling/appointments",
     "GET /api/v1/scheduling/appointments/{appointment_id}",
-    "DELETE /api/v1/scheduling/appointments/{appointment_id}"
+    "DELETE /api/v1/scheduling/appointments/{appointment_id}",
+    "POST /api/v1/audit/events",
+    "GET /api/v1/audit/events",
+    "GET /api/v1/audit/events/{event_id}"
   ],
   "emr-service": [
     "GET /health",
@@ -54,5 +57,12 @@
     "GET /api/v1/scheduling/appointments",
     "GET /api/v1/scheduling/appointments/{appointment_id}",
     "DELETE /api/v1/scheduling/appointments/{appointment_id}"
+  ],
+  "audit-service": [
+    "GET /health",
+    "GET /api/v1/info",
+    "POST /api/v1/audit/events",
+    "GET /api/v1/audit/events",
+    "GET /api/v1/audit/events/{event_id}"
   ]
 }
