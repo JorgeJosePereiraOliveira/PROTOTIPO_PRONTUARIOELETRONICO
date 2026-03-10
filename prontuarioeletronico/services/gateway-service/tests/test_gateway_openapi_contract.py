@@ -28,6 +28,9 @@ def test_openapi_contains_gateway_auth_and_patient_paths():
     assert "/api/v1/emr/soap" in paths
     assert "/api/v1/emr/soap/{soap_id}" in paths
 
+    assert "/api/v1/scheduling/appointments" in paths
+    assert "/api/v1/scheduling/appointments/{appointment_id}" in paths
+
 
 def test_openapi_contains_login_schema_example():
     spec = client.get("/openapi.json").json()

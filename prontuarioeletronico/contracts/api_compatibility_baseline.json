@@ -33,7 +33,11 @@
     "POST /api/v1/emr/problems",
     "GET /api/v1/emr/problems/{problem_id}",
     "POST /api/v1/emr/soap",
-    "GET /api/v1/emr/soap/{soap_id}"
+    "GET /api/v1/emr/soap/{soap_id}",
+    "POST /api/v1/scheduling/appointments",
+    "GET /api/v1/scheduling/appointments",
+    "GET /api/v1/scheduling/appointments/{appointment_id}",
+    "DELETE /api/v1/scheduling/appointments/{appointment_id}"
   ],
   "emr-service": [
     "GET /health",
@@ -42,5 +46,13 @@
     "GET /api/v1/emr/problems/{problem_id}",
     "POST /api/v1/emr/soap",
     "GET /api/v1/emr/soap/{soap_id}"
+  ],
+  "scheduling-service": [
+    "GET /health",
+    "GET /api/v1/info",
+    "POST /api/v1/scheduling/appointments",
+    "GET /api/v1/scheduling/appointments",
+    "GET /api/v1/scheduling/appointments/{appointment_id}",
+    "DELETE /api/v1/scheduling/appointments/{appointment_id}"
   ]
 }

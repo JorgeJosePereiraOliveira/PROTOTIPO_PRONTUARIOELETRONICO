@@ -9,6 +9,7 @@ SERVICES_DIR = Path(__file__).resolve().parents[2]
 AUTH_SERVICE_ROOT = SERVICES_DIR / "auth-service"
 PATIENT_SERVICE_ROOT = SERVICES_DIR / "patient-service"
 EMR_SERVICE_ROOT = SERVICES_DIR / "emr-service"
+SCHEDULING_SERVICE_ROOT = SERVICES_DIR / "scheduling-service"
 
 if str(AUTH_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(AUTH_SERVICE_ROOT))
@@ -16,14 +17,18 @@ if str(PATIENT_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(PATIENT_SERVICE_ROOT))
 if str(EMR_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(EMR_SERVICE_ROOT))
+if str(SCHEDULING_SERVICE_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCHEDULING_SERVICE_ROOT))
 
 os.environ.setdefault("AUTH_JWT_SECRET", "test-secret-gateway")
 os.environ.setdefault("AUTH_DATABASE_URL", "sqlite:///./test_auth_gateway.db")
 os.environ.setdefault("PATIENT_DATABASE_URL", "sqlite:///./test_patient_gateway.db")
 os.environ.setdefault("EMR_DATABASE_URL", "sqlite:///./test_emr_gateway.db")
+os.environ.setdefault("SCHEDULING_DATABASE_URL", "sqlite:///./test_scheduling_gateway.db")
 
 from src.auth.infra.api.main import app as auth_app
 from src.emr.infra.api import main as emr_main
+from src.scheduling.infra.api import main as scheduling_main
 from src.patient.infra.api import main as patient_main
 from src.gateway.infra.api import main as gateway_main
 
@@ -86,12 +91,15 @@ def setup_function() -> None:
     auth_client = TestClient(auth_app)
     patient_main._auth_client = LocalAuthServiceClient(auth_client)
     emr_main._auth_client = LocalAuthServiceClient(auth_client)
+    scheduling_main._auth_client = LocalAuthServiceClient(auth_client)
     patient_main._reset_for_tests()
     emr_main._reset_for_tests()
+    scheduling_main._reset_for_tests()
 
     gateway_main._auth_proxy = LocalServiceProxy(auth_client)
     gateway_main._patient_proxy = LocalServiceProxy(TestClient(patient_main.app))
     gateway_main._emr_proxy = LocalServiceProxy(TestClient(emr_main.app))
+    gateway_main._scheduling_proxy = LocalServiceProxy(TestClient(scheduling_main.app))
 
 
 def _gateway_login(client: TestClient, username: str, password: str) -> dict:
@@ -213,3 +221,52 @@ def test_gateway_rejects_missing_or_invalid_token():
         headers={"Authorization": "Bearer token-invalido"},
     )
     assert invalid_auth.status_code == 401
+
+
+def test_gateway_end_to_end_scheduling_flow():
+    gateway_client = TestClient(gateway_main.app)
+
+    admin_tokens = _gateway_login(gateway_client, "admin", "admin123")
+    prof_tokens = _gateway_login(gateway_client, "profissional", "prof123")
+    auth_header_prof = {"Authorization": f"Bearer {prof_tokens['access_token']}"}
+    auth_header_admin = {"Authorization": f"Bearer {admin_tokens['access_token']}"}
+
+    create_response = gateway_client.post(
+        "/api/v1/scheduling/appointments",
+        json={
+            "patient_id": "patient-gw-sch-1",
+            "professional_id": "professional-gw-sch-1",
+            "scheduled_at": "2026-04-10T09:30:00Z",
+            "reason": "Consulta de rotina",
+        },
+        headers=auth_header_prof,
+    )
+    assert create_response.status_code == 201
+    appointment_id = create_response.json()["id"]
+
+    list_response = gateway_client.get(
+        "/api/v1/scheduling/appointments",
+        headers=auth_header_prof,
+    )
+    assert list_response.status_code == 200
+    assert len(list_response.json()) == 1
+
+    get_response = gateway_client.get(
+        f"/api/v1/scheduling/appointments/{appointment_id}",
+        headers=auth_header_prof,
+    )
+    assert get_response.status_code == 200
+    assert get_response.json()["id"] == appointment_id
+
+    forbidden_delete = gateway_client.delete(
+        f"/api/v1/scheduling/appointments/{appointment_id}",
+        headers=auth_header_prof,
+    )
+    assert forbidden_delete.status_code == 403
+
+    allowed_delete = gateway_client.delete(
+        f"/api/v1/scheduling/appointments/{appointment_id}",
+        headers=auth_header_admin,
+    )
+    assert allowed_delete.status_code == 200
+    assert allowed_delete.json()["deleted"] is True

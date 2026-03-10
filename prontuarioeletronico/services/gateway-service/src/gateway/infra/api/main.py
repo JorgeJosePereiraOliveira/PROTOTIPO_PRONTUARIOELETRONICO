@@ -59,10 +59,18 @@ class SOAPPayload(BaseModel):
     plan: str
 
 
+class AppointmentPayload(BaseModel):
+    patient_id: str
+    professional_id: str
+    scheduled_at: str
+    reason: str
+
+
 APP_ENV = os.getenv("APP_ENV", "development")
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
 PATIENT_SERVICE_URL = os.getenv("PATIENT_SERVICE_URL")
 EMR_SERVICE_URL = os.getenv("EMR_SERVICE_URL")
+SCHEDULING_SERVICE_URL = os.getenv("SCHEDULING_SERVICE_URL")
 
 if APP_ENV in {"production", "staging"}:
     if AUTH_SERVICE_URL is None:
@@ -71,6 +79,8 @@ if APP_ENV in {"production", "staging"}:
         raise RuntimeError("PATIENT_SERVICE_URL is required for production/staging")
     if EMR_SERVICE_URL is None:
         raise RuntimeError("EMR_SERVICE_URL is required for production/staging")
+    if SCHEDULING_SERVICE_URL is None:
+        raise RuntimeError("SCHEDULING_SERVICE_URL is required for production/staging")
 
 if AUTH_SERVICE_URL is None:
     AUTH_SERVICE_URL = "http://localhost:8001"
@@ -78,10 +88,13 @@ if PATIENT_SERVICE_URL is None:
     PATIENT_SERVICE_URL = "http://localhost:8002"
 if EMR_SERVICE_URL is None:
     EMR_SERVICE_URL = "http://localhost:8003"
+if SCHEDULING_SERVICE_URL is None:
+    SCHEDULING_SERVICE_URL = "http://localhost:8004"
 
 _auth_proxy = HttpServiceProxy(base_url=AUTH_SERVICE_URL)
 _patient_proxy = HttpServiceProxy(base_url=PATIENT_SERVICE_URL)
 _emr_proxy = HttpServiceProxy(base_url=EMR_SERVICE_URL)
+_scheduling_proxy = HttpServiceProxy(base_url=SCHEDULING_SERVICE_URL)
 
 
 def _forward_response(status_code: int, body: object) -> JSONResponse:
@@ -99,7 +112,7 @@ def service_info():
         "service": "gateway",
         "architecture": "clean-architecture",
         "layers": ["domain", "application", "infra"],
-        "routes": ["auth", "patients", "emr"],
+        "routes": ["auth", "patients", "emr", "scheduling"],
     }
 
 
@@ -251,6 +264,50 @@ def get_soap(soap_id: str, authorization: str | None = Header(default=None)):
     status_code, body = _emr_proxy.request(
         method="GET",
         path=f"/api/v1/emr/soap/{soap_id}",
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.post("/api/v1/scheduling/appointments")
+def create_appointment(
+    payload: AppointmentPayload,
+    authorization: str | None = Header(default=None),
+):
+    status_code, body = _scheduling_proxy.request(
+        method="POST",
+        path="/api/v1/scheduling/appointments",
+        json_body=payload.model_dump(),
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.get("/api/v1/scheduling/appointments")
+def list_appointments(authorization: str | None = Header(default=None)):
+    status_code, body = _scheduling_proxy.request(
+        method="GET",
+        path="/api/v1/scheduling/appointments",
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.get("/api/v1/scheduling/appointments/{appointment_id}")
+def get_appointment(appointment_id: str, authorization: str | None = Header(default=None)):
+    status_code, body = _scheduling_proxy.request(
+        method="GET",
+        path=f"/api/v1/scheduling/appointments/{appointment_id}",
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.delete("/api/v1/scheduling/appointments/{appointment_id}")
+def delete_appointment(appointment_id: str, authorization: str | None = Header(default=None)):
+    status_code, body = _scheduling_proxy.request(
+        method="DELETE",
+        path=f"/api/v1/scheduling/appointments/{appointment_id}",
         authorization=authorization,
     )
     return _forward_response(status_code, body)
