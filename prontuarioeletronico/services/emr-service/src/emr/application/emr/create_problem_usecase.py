@@ -27,6 +27,7 @@ class CreateProblemOutputDTO:
     terminology_system: str
     terminology_code: str
     status: str
+    created_at: str
 
 
 class CreateProblemUseCase(UseCase[CreateProblemInputDTO, CreateProblemOutputDTO]):
@@ -76,4 +77,5 @@ class CreateProblemUseCase(UseCase[CreateProblemInputDTO, CreateProblemOutputDTO
             terminology_system=entity.terminology_system,
             terminology_code=entity.terminology_code,
             status=entity.status,
+            created_at=entity.created_at,
         )

@@ -19,6 +19,7 @@ class FindSOAPOutputDTO:
     objective: str
     assessment: str
     plan: str
+    created_at: str
 
 
 class FindSOAPUseCase(UseCase[FindSOAPInputDTO, FindSOAPOutputDTO | None]):
@@ -39,4 +40,5 @@ class FindSOAPUseCase(UseCase[FindSOAPInputDTO, FindSOAPOutputDTO | None]):
             objective=entity.objective,
             assessment=entity.assessment,
             plan=entity.plan,
+            created_at=entity.created_at,
         )

@@ -17,6 +17,7 @@ class FindProblemOutputDTO:
     terminology_system: str
     terminology_code: str
     status: str
+    created_at: str
 
 
 class FindProblemUseCase(UseCase[FindProblemInputDTO, FindProblemOutputDTO | None]):
@@ -35,4 +36,5 @@ class FindProblemUseCase(UseCase[FindProblemInputDTO, FindProblemOutputDTO | Non
             terminology_system=entity.terminology_system,
             terminology_code=entity.terminology_code,
             status=entity.status,
+            created_at=entity.created_at,
         )

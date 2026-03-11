@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from ..__seedwork.entity import Entity
 
 
@@ -10,6 +12,7 @@ class Problem(Entity):
         terminology_system: str,
         terminology_code: str,
         status: str = "active",
+        created_at: str | None = None,
     ):
         super().__init__(id=id)
         self._patient_id = patient_id
@@ -17,6 +20,9 @@ class Problem(Entity):
         self._terminology_system = terminology_system
         self._terminology_code = terminology_code
         self._status = status
+        self._created_at = created_at or datetime.now(timezone.utc).isoformat().replace(
+            "+00:00", "Z"
+        )
 
     @property
     def patient_id(self) -> str:
@@ -37,3 +43,7 @@ class Problem(Entity):
     @property
     def status(self) -> str:
         return self._status
+
+    @property
+    def created_at(self) -> str:
+        return self._created_at

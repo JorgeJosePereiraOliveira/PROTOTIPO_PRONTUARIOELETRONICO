@@ -13,6 +13,7 @@ class ProblemModel(Base):
     terminology_system: Mapped[str] = mapped_column(String(32), nullable=False)
     terminology_code: Mapped[str] = mapped_column(String(64), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
+    created_at: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
 
 
 class SOAPRecordModel(Base):
@@ -31,3 +32,4 @@ class SOAPRecordModel(Base):
     objective: Mapped[str] = mapped_column(String(2000), nullable=False)
     assessment: Mapped[str] = mapped_column(String(2000), nullable=False)
     plan: Mapped[str] = mapped_column(String(2000), nullable=False)
+    created_at: Mapped[str] = mapped_column(String(64), nullable=False, index=True)

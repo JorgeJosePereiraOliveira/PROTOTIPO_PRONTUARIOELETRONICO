@@ -13,6 +13,10 @@ from ...application.emr.create_problem_usecase import (
 from ...application.emr.create_soap_usecase import CreateSOAPInputDTO, CreateSOAPUseCase
 from ...application.emr.find_problem_usecase import FindProblemInputDTO, FindProblemUseCase
 from ...application.emr.find_soap_usecase import FindSOAPInputDTO, FindSOAPUseCase
+from ...application.emr.list_problem_timeline_usecase import (
+    ListProblemTimelineInputDTO,
+    ListProblemTimelineUseCase,
+)
 from ...application.emr.validate_terminology_code_usecase import (
     ValidateTerminologyCodeInputDTO,
     ValidateTerminologyCodeUseCase,
@@ -100,6 +104,7 @@ _create_problem_usecase = CreateProblemUseCase(
 _find_problem_usecase = FindProblemUseCase(_problem_repository)
 _create_soap_usecase = CreateSOAPUseCase(_soap_repository, _problem_repository)
 _find_soap_usecase = FindSOAPUseCase(_soap_repository)
+_list_timeline_usecase = ListProblemTimelineUseCase(_problem_repository, _soap_repository)
 _auth_client = AuthServiceClient(base_url=AUTH_SERVICE_URL)
 _audit_client = AuditServiceClient(base_url=AUDIT_SERVICE_URL)
 _bearer_scheme = HTTPBearer(auto_error=False)
@@ -250,6 +255,32 @@ def get_problem(
         raise HTTPException(status_code=404, detail="problem not found")
 
     return asdict(output)
+
+
+@app.get("/api/v1/emr/timeline")
+def get_timeline(
+    patient_id: str = Query(...),
+    problem_id: str | None = Query(default=None),
+    _auth: dict = Depends(_require_roles(["admin", "profissional"])),
+):
+    try:
+        output = _list_timeline_usecase.execute(
+            ListProblemTimelineInputDTO(
+                patient_id=patient_id,
+                problem_id=problem_id,
+            )
+        )
+    except ValueError as error:
+        detail = str(error)
+        if detail == "problem not found":
+            raise HTTPException(status_code=404, detail=detail) from error
+        raise HTTPException(status_code=400, detail=detail) from error
+
+    return {
+        "patient_id": output.patient_id,
+        "problem_id": output.problem_id,
+        "events": [asdict(item) for item in output.events],
+    }
 
 
 @app.get("/api/v1/emr/terminology/validate")

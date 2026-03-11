@@ -27,6 +27,7 @@ class SqlAlchemySOAPRepository(SOAPRepositoryInterface):
         model.objective = entity.objective
         model.assessment = entity.assessment
         model.plan = entity.plan
+        model.created_at = entity.created_at
         self._session.commit()
 
     def delete(self, id: str) -> None:
@@ -61,6 +62,7 @@ class SqlAlchemySOAPRepository(SOAPRepositoryInterface):
             objective=model.objective,
             assessment=model.assessment,
             plan=model.plan,
+            created_at=model.created_at,
         )
 
     @staticmethod
@@ -74,4 +76,5 @@ class SqlAlchemySOAPRepository(SOAPRepositoryInterface):
             objective=entity.objective,
             assessment=entity.assessment,
             plan=entity.plan,
+            created_at=entity.created_at,
         )

@@ -219,6 +219,17 @@ def test_gateway_end_to_end_emr_flow():
     assert get_soap.status_code == 200
     assert get_soap.json()["problem_id"] == problem_id
 
+    timeline = gateway_client.get(
+        "/api/v1/emr/timeline",
+        params={"patient_id": "patient-gw-emr-1", "problem_id": problem_id},
+        headers=auth_header,
+    )
+    assert timeline.status_code == 200
+    events = timeline.json()["events"]
+    assert len(events) == 2
+    assert events[0]["event_type"] == "problem"
+    assert events[1]["event_type"] == "soap"
+
 
 def test_gateway_propagates_emr_soap_validation_errors():
     gateway_client = TestClient(gateway_main.app)

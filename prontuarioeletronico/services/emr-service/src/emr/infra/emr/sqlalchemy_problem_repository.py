@@ -25,6 +25,7 @@ class SqlAlchemyProblemRepository(ProblemRepositoryInterface):
         model.terminology_system = entity.terminology_system
         model.terminology_code = entity.terminology_code
         model.status = entity.status
+        model.created_at = entity.created_at
         self._session.commit()
 
     def delete(self, id: str) -> None:
@@ -57,6 +58,7 @@ class SqlAlchemyProblemRepository(ProblemRepositoryInterface):
             terminology_system=model.terminology_system,
             terminology_code=model.terminology_code,
             status=model.status,
+            created_at=model.created_at,
         )
 
     @staticmethod
@@ -68,4 +70,5 @@ class SqlAlchemyProblemRepository(ProblemRepositoryInterface):
             terminology_system=entity.terminology_system,
             terminology_code=entity.terminology_code,
             status=entity.status,
+            created_at=entity.created_at,
         )

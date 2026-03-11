@@ -112,6 +112,64 @@ def test_create_soap_and_find_soap(monkeypatch):
     assert get_response.json()["problem_id"] == problem["id"]
 
 
+def test_timeline_returns_problem_and_soap_events(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    problem = client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-timeline-1",
+            "description": "Hipertensao em acompanhamento",
+            "terminology_system": "cid",
+            "terminology_code": "I10",
+            "status": "active",
+        },
+        headers=AUTH_HEADER,
+    ).json()
+
+    soap = client.post(
+        "/api/v1/emr/soap",
+        json={
+            "problem_id": problem["id"],
+            "patient_id": "patient-timeline-1",
+            "professional_id": "prof-timeline-1",
+            "subjective": "Paciente refere elevacao pressorica noturna frequente.",
+            "objective": "PA aferida em 150x95 mmHg na consulta.",
+            "assessment": "Hipertensao arterial sem lesao de orgao-alvo aparente.",
+            "plan": "Ajustar terapia e retorno em 14 dias para reavaliacao.",
+        },
+        headers=AUTH_HEADER,
+    ).json()
+
+    response = client.get(
+        "/api/v1/emr/timeline",
+        params={"patient_id": "patient-timeline-1", "problem_id": problem["id"]},
+        headers=AUTH_HEADER,
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["patient_id"] == "patient-timeline-1"
+    assert payload["problem_id"] == problem["id"]
+    assert len(payload["events"]) == 2
+    assert payload["events"][0]["event_type"] == "problem"
+    assert payload["events"][1]["event_type"] == "soap"
+    assert payload["events"][1]["event_id"] == soap["id"]
+
+
+def test_timeline_rejects_unknown_problem(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    response = client.get(
+        "/api/v1/emr/timeline",
+        params={"patient_id": "patient-timeline-2", "problem_id": "problem-inexistente"},
+        headers=AUTH_HEADER,
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "problem not found"
+
+
 def test_create_soap_rejects_missing_problem(monkeypatch):
     _auth_ok(monkeypatch)
 

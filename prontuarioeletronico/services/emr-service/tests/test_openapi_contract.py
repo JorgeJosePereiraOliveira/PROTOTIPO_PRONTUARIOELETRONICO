@@ -12,6 +12,7 @@ def test_openapi_contains_required_emr_paths():
 
     assert "/api/v1/emr/problems" in paths
     assert "/api/v1/emr/problems/{problem_id}" in paths
+    assert "/api/v1/emr/timeline" in paths
     assert "/api/v1/emr/soap" in paths
     assert "/api/v1/emr/soap/{soap_id}" in paths
     assert "/api/v1/emr/terminology/validate" in paths

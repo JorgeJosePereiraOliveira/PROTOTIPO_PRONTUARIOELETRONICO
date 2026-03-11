@@ -268,6 +268,25 @@ def get_problem(problem_id: str, authorization: str | None = Header(default=None
     return _forward_response(status_code, body)
 
 
+@app.get("/api/v1/emr/timeline")
+def get_timeline(
+    patient_id: str = Query(...),
+    problem_id: str | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
+    params: dict[str, str] = {"patient_id": patient_id}
+    if problem_id is not None:
+        params["problem_id"] = problem_id
+
+    status_code, body = _emr_proxy.request(
+        method="GET",
+        path="/api/v1/emr/timeline",
+        params=params,
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
 @app.post("/api/v1/emr/soap")
 def create_soap(payload: SOAPPayload, authorization: str | None = Header(default=None)):
     status_code, body = _emr_proxy.request(

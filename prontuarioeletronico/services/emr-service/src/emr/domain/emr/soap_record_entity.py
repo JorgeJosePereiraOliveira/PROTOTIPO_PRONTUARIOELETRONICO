@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from ..__seedwork.entity import Entity
 
 
@@ -12,6 +14,7 @@ class SOAPRecord(Entity):
         objective: str,
         assessment: str,
         plan: str,
+        created_at: str | None = None,
     ):
         super().__init__(id=id)
         self._problem_id = problem_id
@@ -21,6 +24,9 @@ class SOAPRecord(Entity):
         self._objective = objective
         self._assessment = assessment
         self._plan = plan
+        self._created_at = created_at or datetime.now(timezone.utc).isoformat().replace(
+            "+00:00", "Z"
+        )
 
     @property
     def problem_id(self) -> str:
@@ -49,3 +55,7 @@ class SOAPRecord(Entity):
     @property
     def plan(self) -> str:
         return self._plan
+
+    @property
+    def created_at(self) -> str:
+        return self._created_at

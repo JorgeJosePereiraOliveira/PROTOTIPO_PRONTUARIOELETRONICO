@@ -23,26 +23,44 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 def init_database() -> None:
     Base.metadata.create_all(bind=engine)
     if DATABASE_URL.startswith("sqlite"):
-        _ensure_problem_terminology_columns()
+        _ensure_legacy_columns()
 
 
-def _ensure_problem_terminology_columns() -> None:
+def _ensure_legacy_columns() -> None:
     with engine.begin() as connection:
         inspector = inspect(connection)
-        if "problems" not in inspector.get_table_names():
-            return
+        table_names = set(inspector.get_table_names())
 
-        existing_columns = {column["name"] for column in inspector.get_columns("problems")}
+        if "problems" in table_names:
+            problem_columns = {
+                column["name"] for column in inspector.get_columns("problems")
+            }
+            if "terminology_system" not in problem_columns:
+                connection.execute(
+                    text(
+                        "ALTER TABLE problems ADD COLUMN terminology_system VARCHAR(32) NOT NULL DEFAULT 'cid'"
+                    )
+                )
+            if "terminology_code" not in problem_columns:
+                connection.execute(
+                    text(
+                        "ALTER TABLE problems ADD COLUMN terminology_code VARCHAR(64) NOT NULL DEFAULT 'I10'"
+                    )
+                )
+            if "created_at" not in problem_columns:
+                connection.execute(
+                    text(
+                        "ALTER TABLE problems ADD COLUMN created_at VARCHAR(64) NOT NULL DEFAULT '1970-01-01T00:00:00Z'"
+                    )
+                )
 
-        if "terminology_system" not in existing_columns:
-            connection.execute(
-                text(
-                    "ALTER TABLE problems ADD COLUMN terminology_system VARCHAR(32) NOT NULL DEFAULT 'cid'"
+        if "soap_records" in table_names:
+            soap_columns = {
+                column["name"] for column in inspector.get_columns("soap_records")
+            }
+            if "created_at" not in soap_columns:
+                connection.execute(
+                    text(
+                        "ALTER TABLE soap_records ADD COLUMN created_at VARCHAR(64) NOT NULL DEFAULT '1970-01-01T00:00:00Z'"
+                    )
                 )
-            )
-        if "terminology_code" not in existing_columns:
-            connection.execute(
-                text(
-                    "ALTER TABLE problems ADD COLUMN terminology_code VARCHAR(64) NOT NULL DEFAULT 'I10'"
-                )
-            )

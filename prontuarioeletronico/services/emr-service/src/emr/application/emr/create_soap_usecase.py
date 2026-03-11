@@ -28,6 +28,7 @@ class CreateSOAPOutputDTO:
     objective: str
     assessment: str
     plan: str
+    created_at: str
 
 
 class CreateSOAPUseCase(UseCase[CreateSOAPInputDTO, CreateSOAPOutputDTO]):
@@ -116,4 +117,5 @@ class CreateSOAPUseCase(UseCase[CreateSOAPInputDTO, CreateSOAPOutputDTO]):
             objective=entity.objective,
             assessment=entity.assessment,
             plan=entity.plan,
+            created_at=entity.created_at,
         )
