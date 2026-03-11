@@ -1,7 +1,7 @@
 from dataclasses import asdict
 import os
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Security
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict
 
@@ -12,6 +12,10 @@ from ...application.emr.create_problem_usecase import (
 from ...application.emr.create_soap_usecase import CreateSOAPInputDTO, CreateSOAPUseCase
 from ...application.emr.find_problem_usecase import FindProblemInputDTO, FindProblemUseCase
 from ...application.emr.find_soap_usecase import FindSOAPInputDTO, FindSOAPUseCase
+from ...application.emr.validate_terminology_code_usecase import (
+    ValidateTerminologyCodeInputDTO,
+    ValidateTerminologyCodeUseCase,
+)
 from ...infra.auth.auth_service_client import AuthServiceClient
 from ...infra.emr.database import SessionLocal, init_database
 from ...infra.emr.sqlalchemy_problem_repository import SqlAlchemyProblemRepository
@@ -81,6 +85,7 @@ _create_problem_usecase = CreateProblemUseCase(_problem_repository)
 _find_problem_usecase = FindProblemUseCase(_problem_repository)
 _create_soap_usecase = CreateSOAPUseCase(_soap_repository, _problem_repository)
 _find_soap_usecase = FindSOAPUseCase(_soap_repository)
+_validate_terminology_code_usecase = ValidateTerminologyCodeUseCase()
 _auth_client = AuthServiceClient(base_url=AUTH_SERVICE_URL)
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -164,6 +169,22 @@ def get_problem(
     output = _find_problem_usecase.execute(FindProblemInputDTO(id=problem_id))
     if output is None:
         raise HTTPException(status_code=404, detail="problem not found")
+
+    return asdict(output)
+
+
+@app.get("/api/v1/emr/terminology/validate")
+def validate_terminology_code(
+    system: str = Query(...),
+    code: str = Query(...),
+    _auth: dict = Depends(_require_roles(["admin", "profissional"])),
+):
+    try:
+        output = _validate_terminology_code_usecase.execute(
+            ValidateTerminologyCodeInputDTO(system=system, code=code)
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
     return asdict(output)
 

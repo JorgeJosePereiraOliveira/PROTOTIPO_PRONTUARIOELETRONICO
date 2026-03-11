@@ -247,6 +247,45 @@ def test_protected_endpoints_reject_invalid_token(monkeypatch):
     assert response.status_code == 401
 
 
+def test_validate_terminology_code_success(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    response = client.get(
+        "/api/v1/emr/terminology/validate",
+        params={"system": "cid", "code": "J45.9"},
+        headers=AUTH_HEADER,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["valid"] is True
+    assert body["system"] == "cid"
+    assert body["code"] == "J45.9"
+
+
+def test_validate_terminology_code_rejects_invalid_format(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    response = client.get(
+        "/api/v1/emr/terminology/validate",
+        params={"system": "ciap", "code": "123"},
+        headers=AUTH_HEADER,
+    )
+    assert response.status_code == 400
+    assert "code format is invalid" in response.json()["detail"]
+
+
+def test_validate_terminology_code_rejects_unknown_code(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    response = client.get(
+        "/api/v1/emr/terminology/validate",
+        params={"system": "sigtap", "code": "9999999999"},
+        headers=AUTH_HEADER,
+    )
+    assert response.status_code == 400
+    assert "code not found or inactive" in response.json()["detail"]
+
+
 def test_protected_endpoints_reject_insufficient_role(monkeypatch):
     _auth_ok(monkeypatch, allowed_roles={"recepcao"})
 
