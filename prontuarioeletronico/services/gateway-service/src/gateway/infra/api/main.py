@@ -46,6 +46,8 @@ class PatientPayload(BaseModel):
 class ProblemPayload(BaseModel):
     patient_id: str
     description: str
+    terminology_system: str
+    terminology_code: str
     status: str = "active"
 
 

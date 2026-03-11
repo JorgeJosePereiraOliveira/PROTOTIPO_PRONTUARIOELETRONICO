@@ -22,6 +22,8 @@ class SqlAlchemyProblemRepository(ProblemRepositoryInterface):
 
         model.patient_id = entity.patient_id
         model.description = entity.description
+        model.terminology_system = entity.terminology_system
+        model.terminology_code = entity.terminology_code
         model.status = entity.status
         self._session.commit()
 
@@ -52,6 +54,8 @@ class SqlAlchemyProblemRepository(ProblemRepositoryInterface):
             id=model.id,
             patient_id=model.patient_id,
             description=model.description,
+            terminology_system=model.terminology_system,
+            terminology_code=model.terminology_code,
             status=model.status,
         )
 
@@ -61,5 +65,7 @@ class SqlAlchemyProblemRepository(ProblemRepositoryInterface):
             id=entity.id,
             patient_id=entity.patient_id,
             description=entity.description,
+            terminology_system=entity.terminology_system,
+            terminology_code=entity.terminology_code,
             status=entity.status,
         )

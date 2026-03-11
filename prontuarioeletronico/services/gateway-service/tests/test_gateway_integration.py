@@ -183,6 +183,8 @@ def test_gateway_end_to_end_emr_flow():
         json={
             "patient_id": "patient-gw-emr-1",
             "description": "DPOC em acompanhamento",
+            "terminology_system": "cid",
+            "terminology_code": "J45.9",
             "status": "active",
         },
         headers=auth_header,
@@ -228,6 +230,8 @@ def test_gateway_propagates_emr_soap_validation_errors():
         json={
             "patient_id": "patient-gw-emr-2",
             "description": "Dor abdominal funcional",
+            "terminology_system": "cid",
+            "terminology_code": "I10",
             "status": "active",
         },
         headers=auth_header,

@@ -10,6 +10,8 @@ class ProblemModel(Base):
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     patient_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     description: Mapped[str] = mapped_column(String(800), nullable=False)
+    terminology_system: Mapped[str] = mapped_column(String(32), nullable=False)
+    terminology_code: Mapped[str] = mapped_column(String(64), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
 
 

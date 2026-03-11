@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker
 
 from .sqlalchemy_base import Base
@@ -22,3 +22,27 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 def init_database() -> None:
     Base.metadata.create_all(bind=engine)
+    if DATABASE_URL.startswith("sqlite"):
+        _ensure_problem_terminology_columns()
+
+
+def _ensure_problem_terminology_columns() -> None:
+    with engine.begin() as connection:
+        inspector = inspect(connection)
+        if "problems" not in inspector.get_table_names():
+            return
+
+        existing_columns = {column["name"] for column in inspector.get_columns("problems")}
+
+        if "terminology_system" not in existing_columns:
+            connection.execute(
+                text(
+                    "ALTER TABLE problems ADD COLUMN terminology_system VARCHAR(32) NOT NULL DEFAULT 'cid'"
+                )
+            )
+        if "terminology_code" not in existing_columns:
+            connection.execute(
+                text(
+                    "ALTER TABLE problems ADD COLUMN terminology_code VARCHAR(64) NOT NULL DEFAULT 'I10'"
+                )
+            )

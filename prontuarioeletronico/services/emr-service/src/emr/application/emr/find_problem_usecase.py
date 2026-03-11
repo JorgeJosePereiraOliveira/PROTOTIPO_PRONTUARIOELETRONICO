@@ -14,6 +14,8 @@ class FindProblemOutputDTO:
     id: str
     patient_id: str
     description: str
+    terminology_system: str
+    terminology_code: str
     status: str
 
 
@@ -30,5 +32,7 @@ class FindProblemUseCase(UseCase[FindProblemInputDTO, FindProblemOutputDTO | Non
             id=entity.id,
             patient_id=entity.patient_id,
             description=entity.description,
+            terminology_system=entity.terminology_system,
+            terminology_code=entity.terminology_code,
             status=entity.status,
         )

@@ -40,6 +40,8 @@ if AUTH_SERVICE_URL is None:
 class CreateProblemRequest(BaseModel):
     patient_id: str
     description: str
+    terminology_system: str
+    terminology_code: str
     status: str = "active"
 
     model_config = ConfigDict(
@@ -47,6 +49,8 @@ class CreateProblemRequest(BaseModel):
             "example": {
                 "patient_id": "patient-123",
                 "description": "Hipertensao arterial sistemica",
+                "terminology_system": "cid",
+                "terminology_code": "I10",
                 "status": "active",
             }
         }
@@ -81,11 +85,14 @@ init_database()
 _db_session = SessionLocal()
 _problem_repository = SqlAlchemyProblemRepository(_db_session)
 _soap_repository = SqlAlchemySOAPRepository(_db_session)
-_create_problem_usecase = CreateProblemUseCase(_problem_repository)
+_validate_terminology_code_usecase = ValidateTerminologyCodeUseCase()
+_create_problem_usecase = CreateProblemUseCase(
+    _problem_repository,
+    terminology_validator=_validate_terminology_code_usecase,
+)
 _find_problem_usecase = FindProblemUseCase(_problem_repository)
 _create_soap_usecase = CreateSOAPUseCase(_soap_repository, _problem_repository)
 _find_soap_usecase = FindSOAPUseCase(_soap_repository)
-_validate_terminology_code_usecase = ValidateTerminologyCodeUseCase()
 _auth_client = AuthServiceClient(base_url=AUTH_SERVICE_URL)
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -152,6 +159,8 @@ def create_problem(
             CreateProblemInputDTO(
                 patient_id=payload.patient_id,
                 description=payload.description,
+                terminology_system=payload.terminology_system,
+                terminology_code=payload.terminology_code,
                 status=payload.status,
             )
         )
@@ -228,5 +237,6 @@ def get_soap_record(
 
 
 def _reset_for_tests() -> None:
+    _db_session.rollback()
     _soap_repository.clear()
     _problem_repository.clear()

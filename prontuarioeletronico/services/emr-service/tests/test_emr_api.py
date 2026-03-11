@@ -41,6 +41,8 @@ def test_create_problem_and_find_problem(monkeypatch):
         json={
             "patient_id": "patient-100",
             "description": "Diabetes mellitus tipo 2",
+            "terminology_system": "cid",
+            "terminology_code": "E11",
             "status": "active",
         },
         headers=AUTH_HEADER,
@@ -55,6 +57,8 @@ def test_create_problem_and_find_problem(monkeypatch):
     )
     assert get_response.status_code == 200
     assert get_response.json()["description"] == "Diabetes mellitus tipo 2"
+    assert get_response.json()["terminology_system"] == "cid"
+    assert get_response.json()["terminology_code"] == "E11"
 
 
 def test_create_soap_and_find_soap(monkeypatch):
@@ -65,6 +69,8 @@ def test_create_soap_and_find_soap(monkeypatch):
         json={
             "patient_id": "patient-101",
             "description": "Asma persistente",
+            "terminology_system": "cid",
+            "terminology_code": "J45.9",
             "status": "active",
         },
         headers=AUTH_HEADER,
@@ -120,6 +126,8 @@ def test_create_soap_rejects_short_clinical_sections(monkeypatch):
         json={
             "patient_id": "patient-201",
             "description": "Dor cronica em ombro direito",
+            "terminology_system": "ciap",
+            "terminology_code": "R05",
             "status": "active",
         },
         headers=AUTH_HEADER,
@@ -151,6 +159,8 @@ def test_create_soap_rejects_placeholder_values(monkeypatch):
         json={
             "patient_id": "patient-202",
             "description": "Cefaleia tensional recorrente",
+            "terminology_system": "ciap",
+            "terminology_code": "K86",
             "status": "active",
         },
         headers=AUTH_HEADER,
@@ -182,6 +192,8 @@ def test_create_soap_rejects_identical_assessment_and_plan(monkeypatch):
         json={
             "patient_id": "patient-203",
             "description": "Lombalgia mecanica",
+            "terminology_system": "ciap",
+            "terminology_code": "T90",
             "status": "active",
         },
         headers=AUTH_HEADER,
@@ -215,6 +227,8 @@ def test_create_soap_rejects_identical_subjective_and_objective(monkeypatch):
         json={
             "patient_id": "patient-204",
             "description": "Cefaleia persistente",
+            "terminology_system": "ciap",
+            "terminology_code": "R05",
             "status": "active",
         },
         headers=AUTH_HEADER,
@@ -286,6 +300,26 @@ def test_validate_terminology_code_rejects_unknown_code(monkeypatch):
     assert "code not found or inactive" in response.json()["detail"]
 
 
+def test_create_problem_rejects_invalid_terminology_code(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    response = client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-205",
+            "description": "Asma em acompanhamento",
+            "terminology_system": "cid",
+            "terminology_code": "INVALID",
+            "status": "active",
+        },
+        headers=AUTH_HEADER,
+    )
+
+    assert response.status_code == 400
+    assert "code format is invalid" in response.json()["detail"]
+    assert len(main._problem_repository.find_all()) == 0
+
+
 def test_protected_endpoints_reject_insufficient_role(monkeypatch):
     _auth_ok(monkeypatch, allowed_roles={"recepcao"})
 
@@ -294,6 +328,8 @@ def test_protected_endpoints_reject_insufficient_role(monkeypatch):
         json={
             "patient_id": "patient-300",
             "description": "Enxaqueca cronica",
+            "terminology_system": "cid",
+            "terminology_code": "I10",
             "status": "active",
         },
         headers=AUTH_HEADER,

@@ -80,6 +80,8 @@ def test_emr_rbac_e2e_with_real_tokens():
         json={
             "patient_id": "patient-e2e-1",
             "description": "Insuficiencia cardiaca cronica",
+            "terminology_system": "cid",
+            "terminology_code": "I10",
             "status": "active",
         },
         headers={"Authorization": f"Bearer {professional_tokens['access_token']}"},
@@ -125,6 +127,8 @@ def test_emr_rejects_incoherent_soap_with_real_token_e2e():
         json={
             "patient_id": "patient-e2e-2",
             "description": "Dor toracica atipica",
+            "terminology_system": "cid",
+            "terminology_code": "J45.9",
             "status": "active",
         },
         headers=auth_header,
