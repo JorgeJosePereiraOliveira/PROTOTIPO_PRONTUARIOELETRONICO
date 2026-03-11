@@ -54,12 +54,12 @@ Esta entrega prepara a base para:
 
 ## 5) Criterios de aceite da fase inicial
 
-- [ ] Endpoint de validacao de terminologia publicado.
-- [ ] Validacao de formato por sistema implementada.
-- [ ] Validacao de existencia em catalogo inicial implementada.
-- [ ] Testes de API cobrindo sucesso e falha.
-- [ ] Teste OpenAPI cobrindo novo path.
-- [ ] Execucao local do `emr-service` em verde.
+- [x] Endpoint de validacao de terminologia publicado.
+- [x] Validacao de formato por sistema implementada.
+- [x] Validacao de existencia em catalogo inicial implementada.
+- [x] Testes de API cobrindo sucesso e falha.
+- [x] Teste OpenAPI cobrindo novo path.
+- [x] Execucao local do `emr-service` em verde.
 
 ---
 
@@ -77,3 +77,18 @@ Esta entrega prepara a base para:
 - commit da fatia;
 - resultado dos testes do `emr-service`;
 - comentario na issue #12 com evidencias.
+
+---
+
+## 8) Segunda fase (logs de validacao terminologica)
+
+1. Integrar emissao de evento de auditoria na criacao de problema clinico.
+2. Registrar status `success` e `failed` para validacao terminologica.
+3. Incluir `terminology_system` e `terminology_code` em metadata do evento.
+4. Garantir que indisponibilidade do audit-service nao bloqueie fluxo clinico.
+5. Cobrir com testes API e E2E.
+
+Status da segunda fase:
+- [x] Emissao de evento no `CreateProblem` (sucesso e falha).
+- [x] Metadata de codificacao clinica registrada no evento.
+- [x] Testes de API e E2E validados em verde.

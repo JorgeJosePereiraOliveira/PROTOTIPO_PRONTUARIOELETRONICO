@@ -9,16 +9,22 @@ from fastapi.testclient import TestClient
 
 SERVICES_DIR = Path(__file__).resolve().parents[2]
 AUTH_SERVICE_ROOT = SERVICES_DIR / "auth-service"
+AUDIT_SERVICE_ROOT = SERVICES_DIR / "audit-service"
 if str(AUTH_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(AUTH_SERVICE_ROOT))
+if str(AUDIT_SERVICE_ROOT) not in sys.path:
+    sys.path.insert(0, str(AUDIT_SERVICE_ROOT))
 
 os.environ.setdefault("AUTH_JWT_SECRET", "test-secret-emr-e2e")
 os.environ.setdefault("AUTH_DATABASE_URL", "sqlite:///./test_auth_emr_e2e.db")
 os.environ.setdefault("EMR_DATABASE_URL", "sqlite:///./test_emr_e2e.db")
+os.environ.setdefault("AUDIT_DATABASE_URL", "sqlite:///./test_audit_emr_e2e.db")
 
 auth_main = importlib.import_module("src.auth.infra.api.main")
+audit_main = importlib.import_module("src.audit.infra.api.main")
 emr_main = importlib.import_module("src.emr.infra.api.main")
 auth_app = auth_main.app
+audit_app = audit_main.app
 
 
 class LocalAuthServiceClient:
@@ -45,6 +51,21 @@ class LocalAuthServiceClient:
         return bool(response.json().get("authorized"))
 
 
+class LocalAuditServiceClient:
+    def __init__(self, audit_client: TestClient):
+        self._audit_client = audit_client
+
+    def create_event(self, token: str, payload: dict) -> dict:
+        response = self._audit_client.post(
+            "/api/v1/audit/events",
+            json=payload,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        if response.status_code >= 400:
+            raise ValueError(response.json().get("detail", "audit request failed"))
+        return response.json()
+
+
 def _login(auth_client: TestClient, username: str, password: str) -> dict:
     response = auth_client.post(
         "/api/v1/auth/login",
@@ -57,16 +78,25 @@ def _login(auth_client: TestClient, username: str, password: str) -> dict:
 @pytest.fixture(autouse=True)
 def configure_real_auth_integration():
     auth_client = TestClient(auth_app)
+    audit_client = TestClient(audit_app)
     original_auth_client = emr_main._auth_client
+    original_audit_client = emr_main._audit_client
+    original_audit_auth_client = audit_main._auth_client
 
     emr_main._auth_client = LocalAuthServiceClient(auth_client)
+    emr_main._audit_client = LocalAuditServiceClient(audit_client)
+    audit_main._auth_client = LocalAuthServiceClient(auth_client)
     emr_main._reset_for_tests()
+    audit_main._reset_for_tests()
 
     try:
         yield
     finally:
         emr_main._auth_client = original_auth_client
+        emr_main._audit_client = original_audit_client
+        audit_main._auth_client = original_audit_auth_client
         emr_main._reset_for_tests()
+        audit_main._reset_for_tests()
 
 
 def test_emr_rbac_e2e_with_real_tokens():
@@ -152,3 +182,41 @@ def test_emr_rejects_incoherent_soap_with_real_token_e2e():
     )
     assert create_soap.status_code == 400
     assert create_soap.json()["detail"] == "subjective and objective must not be identical"
+
+
+def test_emr_create_problem_generates_terminology_audit_log_e2e():
+    auth_client = TestClient(auth_app)
+    emr_client = TestClient(emr_main.app)
+    audit_client = TestClient(audit_app)
+
+    professional_tokens = _login(auth_client, "profissional", "prof123")
+    admin_tokens = _login(auth_client, "admin", "admin123")
+
+    create_problem = emr_client.post(
+        "/api/v1/emr/problems",
+        json={
+            "patient_id": "patient-e2e-3",
+            "description": "Asma em acompanhamento longitudinal",
+            "terminology_system": "cid",
+            "terminology_code": "J45.9",
+            "status": "active",
+        },
+        headers={"Authorization": f"Bearer {professional_tokens['access_token']}"},
+    )
+    assert create_problem.status_code == 201
+
+    list_events = audit_client.get(
+        "/api/v1/audit/events",
+        params={"operation": "validate_terminology_code"},
+        headers={"Authorization": f"Bearer {admin_tokens['access_token']}"},
+    )
+    assert list_events.status_code == 200
+
+    events = list_events.json()
+    assert len(events) >= 1
+    first = events[0]
+    assert first["context"] == "emr"
+    assert first["operation"] == "validate_terminology_code"
+    assert first["status"] == "success"
+    assert first["metadata"]["terminology_system"] == "cid"
+    assert first["metadata"]["terminology_code"] == "J45.9"

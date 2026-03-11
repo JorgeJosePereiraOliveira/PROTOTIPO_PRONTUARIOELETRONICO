@@ -35,6 +35,13 @@ def _auth_invalid(monkeypatch):
 
 def test_create_problem_and_find_problem(monkeypatch):
     _auth_ok(monkeypatch)
+    captured_events: list[tuple[str, dict]] = []
+
+    def create_event(token: str, payload: dict) -> dict:
+        captured_events.append((token, payload))
+        return {"id": "event-1"}
+
+    monkeypatch.setattr(main._audit_client, "create_event", create_event)
 
     create_response = client.post(
         "/api/v1/emr/problems",
@@ -59,6 +66,14 @@ def test_create_problem_and_find_problem(monkeypatch):
     assert get_response.json()["description"] == "Diabetes mellitus tipo 2"
     assert get_response.json()["terminology_system"] == "cid"
     assert get_response.json()["terminology_code"] == "E11"
+    assert len(captured_events) == 1
+    token, payload = captured_events[0]
+    assert token == "fake-token"
+    assert payload["operation"] == "validate_terminology_code"
+    assert payload["status"] == "success"
+    assert payload["resource_type"] == "problem"
+    assert payload["metadata"]["terminology_system"] == "cid"
+    assert payload["metadata"]["terminology_code"] == "E11"
 
 
 def test_create_soap_and_find_soap(monkeypatch):
@@ -302,6 +317,13 @@ def test_validate_terminology_code_rejects_unknown_code(monkeypatch):
 
 def test_create_problem_rejects_invalid_terminology_code(monkeypatch):
     _auth_ok(monkeypatch)
+    captured_events: list[tuple[str, dict]] = []
+
+    def create_event(token: str, payload: dict) -> dict:
+        captured_events.append((token, payload))
+        return {"id": "event-2"}
+
+    monkeypatch.setattr(main._audit_client, "create_event", create_event)
 
     response = client.post(
         "/api/v1/emr/problems",
@@ -318,6 +340,12 @@ def test_create_problem_rejects_invalid_terminology_code(monkeypatch):
     assert response.status_code == 400
     assert "code format is invalid" in response.json()["detail"]
     assert len(main._problem_repository.find_all()) == 0
+    assert len(captured_events) == 1
+    token, payload = captured_events[0]
+    assert token == "fake-token"
+    assert payload["status"] == "failed"
+    assert payload["resource_id"] == "pending"
+    assert payload["metadata"]["validation_error"].startswith("code format is invalid")
 
 
 def test_protected_endpoints_reject_insufficient_role(monkeypatch):

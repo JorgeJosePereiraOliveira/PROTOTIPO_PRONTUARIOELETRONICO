@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from datetime import datetime, timezone
 import os
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Security
@@ -16,6 +17,7 @@ from ...application.emr.validate_terminology_code_usecase import (
     ValidateTerminologyCodeInputDTO,
     ValidateTerminologyCodeUseCase,
 )
+from ...infra.audit.audit_service_client import AuditServiceClient
 from ...infra.auth.auth_service_client import AuthServiceClient
 from ...infra.emr.database import SessionLocal, init_database
 from ...infra.emr.sqlalchemy_problem_repository import SqlAlchemyProblemRepository
@@ -31,10 +33,15 @@ app = FastAPI(
 
 APP_ENV = os.getenv("APP_ENV", "development")
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+AUDIT_SERVICE_URL = os.getenv("AUDIT_SERVICE_URL")
 if AUTH_SERVICE_URL is None:
     if APP_ENV in {"production", "staging"}:
         raise RuntimeError("AUTH_SERVICE_URL is required for production/staging")
     AUTH_SERVICE_URL = "http://localhost:8001"
+if AUDIT_SERVICE_URL is None:
+    if APP_ENV in {"production", "staging"}:
+        raise RuntimeError("AUDIT_SERVICE_URL is required for production/staging")
+    AUDIT_SERVICE_URL = "http://localhost:8005"
 
 
 class CreateProblemRequest(BaseModel):
@@ -94,6 +101,7 @@ _find_problem_usecase = FindProblemUseCase(_problem_repository)
 _create_soap_usecase = CreateSOAPUseCase(_soap_repository, _problem_repository)
 _find_soap_usecase = FindSOAPUseCase(_soap_repository)
 _auth_client = AuthServiceClient(base_url=AUTH_SERVICE_URL)
+_audit_client = AuditServiceClient(base_url=AUDIT_SERVICE_URL)
 _bearer_scheme = HTTPBearer(auto_error=False)
 
 
@@ -135,6 +143,41 @@ def _require_roles(required_roles: list[str]):
     return dependency
 
 
+def _iso_utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _emit_terminology_audit_event(
+    token: str,
+    verified_claims: dict,
+    status: str,
+    resource_id: str,
+    metadata: dict,
+) -> None:
+    claims = verified_claims.get("claims", {})
+    actor_id = str(claims.get("sub") or claims.get("username") or "unknown")
+    actor_role = str(claims.get("role") or "unknown")
+
+    try:
+        _audit_client.create_event(
+            token=token,
+            payload={
+                "actor_id": actor_id,
+                "actor_role": actor_role,
+                "context": "emr",
+                "operation": "validate_terminology_code",
+                "resource_type": "problem",
+                "resource_id": resource_id,
+                "status": status,
+                "occurred_at": _iso_utc_now(),
+                "metadata": metadata,
+            },
+        )
+    except ValueError:
+        # Audit logging must not block clinical workflow.
+        return
+
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "emr"}
@@ -153,7 +196,10 @@ def service_info():
 def create_problem(
     payload: CreateProblemRequest,
     _auth: dict = Depends(_require_roles(["admin", "profissional"])),
+    authorization: str | None = Header(default=None),
 ):
+    token = _extract_bearer_token(authorization)
+
     try:
         output = _create_problem_usecase.execute(
             CreateProblemInputDTO(
@@ -165,7 +211,31 @@ def create_problem(
             )
         )
     except ValueError as error:
+        _emit_terminology_audit_event(
+            token=token,
+            verified_claims=_auth,
+            status="failed",
+            resource_id="pending",
+            metadata={
+                "patient_id": payload.patient_id,
+                "terminology_system": payload.terminology_system,
+                "terminology_code": payload.terminology_code,
+                "validation_error": str(error),
+            },
+        )
         raise HTTPException(status_code=400, detail=str(error)) from error
+
+    _emit_terminology_audit_event(
+        token=token,
+        verified_claims=_auth,
+        status="success",
+        resource_id=output.id,
+        metadata={
+            "patient_id": output.patient_id,
+            "terminology_system": output.terminology_system,
+            "terminology_code": output.terminology_code,
+        },
+    )
 
     return asdict(output)
 
