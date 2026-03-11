@@ -18,6 +18,8 @@ def test_openapi_contains_gateway_auth_and_patient_paths():
 
     assert "/api/v1/patients" in paths
     assert "/api/v1/patients/{patient_id}" in paths
+    assert "/api/v1/patients/{patient_id}/consents" in paths
+    assert "/api/v1/patients/{patient_id}/consents/{consent_id}/revoke" in paths
     assert "post" in paths["/api/v1/patients"]
     assert "get" in paths["/api/v1/patients"]
     assert "put" in paths["/api/v1/patients/{patient_id}"]

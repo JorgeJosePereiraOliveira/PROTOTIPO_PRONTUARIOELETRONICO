@@ -12,6 +12,8 @@ def test_openapi_contains_required_patient_paths():
 
     assert "/api/v1/patients" in paths
     assert "/api/v1/patients/{patient_id}" in paths
+    assert "/api/v1/patients/{patient_id}/consents" in paths
+    assert "/api/v1/patients/{patient_id}/consents/{consent_id}/revoke" in paths
     assert "put" in paths["/api/v1/patients/{patient_id}"]
     assert "delete" in paths["/api/v1/patients/{patient_id}"]
 
@@ -35,8 +37,14 @@ def test_openapi_contains_bearer_security_for_patient_operations():
     patients_get = spec["paths"]["/api/v1/patients"]["get"].get("security", [])
     patient_put = spec["paths"]["/api/v1/patients/{patient_id}"]["put"].get("security", [])
     patient_delete = spec["paths"]["/api/v1/patients/{patient_id}"]["delete"].get("security", [])
+    consent_post = spec["paths"]["/api/v1/patients/{patient_id}/consents"]["post"].get("security", [])
+    consent_list = spec["paths"]["/api/v1/patients/{patient_id}/consents"]["get"].get("security", [])
+    consent_revoke = spec["paths"]["/api/v1/patients/{patient_id}/consents/{consent_id}/revoke"]["post"].get("security", [])
 
     assert {"HTTPBearer": []} in patients_post
     assert {"HTTPBearer": []} in patients_get
     assert {"HTTPBearer": []} in patient_put
     assert {"HTTPBearer": []} in patient_delete
+    assert {"HTTPBearer": []} in consent_post
+    assert {"HTTPBearer": []} in consent_list
+    assert {"HTTPBearer": []} in consent_revoke

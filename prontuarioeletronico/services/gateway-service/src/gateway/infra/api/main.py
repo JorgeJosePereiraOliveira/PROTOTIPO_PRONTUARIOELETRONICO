@@ -43,6 +43,11 @@ class PatientPayload(BaseModel):
     gender: str
 
 
+class ConsentPayload(BaseModel):
+    legal_basis: str
+    purpose: str
+
+
 class ProblemPayload(BaseModel):
     patient_id: str
     description: str
@@ -242,6 +247,54 @@ def delete_patient(patient_id: str, authorization: str | None = Header(default=N
     status_code, body = _patient_proxy.request(
         method="DELETE",
         path=f"/api/v1/patients/{patient_id}",
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.post("/api/v1/patients/{patient_id}/consents")
+def create_patient_consent(
+    patient_id: str,
+    payload: ConsentPayload,
+    authorization: str | None = Header(default=None),
+):
+    status_code, body = _patient_proxy.request(
+        method="POST",
+        path=f"/api/v1/patients/{patient_id}/consents",
+        json_body=payload.model_dump(),
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.get("/api/v1/patients/{patient_id}/consents")
+def list_patient_consents(
+    patient_id: str,
+    status: str | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
+    params: dict[str, str] = {}
+    if status is not None:
+        params["status"] = status
+
+    status_code, body = _patient_proxy.request(
+        method="GET",
+        path=f"/api/v1/patients/{patient_id}/consents",
+        params=params,
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.post("/api/v1/patients/{patient_id}/consents/{consent_id}/revoke")
+def revoke_patient_consent(
+    patient_id: str,
+    consent_id: str,
+    authorization: str | None = Header(default=None),
+):
+    status_code, body = _patient_proxy.request(
+        method="POST",
+        path=f"/api/v1/patients/{patient_id}/consents/{consent_id}/revoke",
         authorization=authorization,
     )
     return _forward_response(status_code, body)

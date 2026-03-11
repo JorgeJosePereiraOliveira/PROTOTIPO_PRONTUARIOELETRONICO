@@ -159,6 +159,24 @@ def test_gateway_end_to_end_auth_and_patient_flow():
     assert update_response.status_code == 200
     assert update_response.json()["name"] == "Paciente Gateway Atualizado"
 
+    create_consent = gateway_client.post(
+        f"/api/v1/patients/{patient_id}/consents",
+        json={
+            "legal_basis": "consentimento",
+            "purpose": "Continuidade do cuidado assistencial",
+        },
+        headers={"Authorization": f"Bearer {prof_tokens['access_token']}"},
+    )
+    assert create_consent.status_code == 201
+    consent_id = create_consent.json()["id"]
+
+    revoke_consent = gateway_client.post(
+        f"/api/v1/patients/{patient_id}/consents/{consent_id}/revoke",
+        headers={"Authorization": f"Bearer {prof_tokens['access_token']}"},
+    )
+    assert revoke_consent.status_code == 200
+    assert revoke_consent.json()["status"] == "revoked"
+
     forbidden_delete = gateway_client.delete(
         f"/api/v1/patients/{patient_id}",
         headers={"Authorization": f"Bearer {prof_tokens['access_token']}"},

@@ -171,3 +171,72 @@ def test_protected_endpoints_reject_invalid_token(monkeypatch):
 
     response = client.get("/api/v1/patients", headers=AUTH_HEADER)
     assert response.status_code == 401
+
+
+def test_create_and_revoke_consent_with_audit(monkeypatch):
+    _auth_ok(monkeypatch)
+    captured_events: list[tuple[str, dict]] = []
+
+    def create_event(token: str, payload: dict) -> dict:
+        captured_events.append((token, payload))
+        return {"id": f"event-{len(captured_events)}"}
+
+    monkeypatch.setattr(main._audit_client, "create_event", create_event)
+
+    created_patient = client.post(
+        "/api/v1/patients",
+        json={
+            "name": "Paciente Consentimento",
+            "cpf": "77777777777",
+            "date_of_birth": "1990-10-10",
+            "gender": "F",
+        },
+        headers=AUTH_HEADER,
+    ).json()
+
+    create_consent = client.post(
+        f"/api/v1/patients/{created_patient['id']}/consents",
+        json={
+            "legal_basis": "consentimento",
+            "purpose": "Uso de dados para continuidade assistencial",
+        },
+        headers=AUTH_HEADER,
+    )
+    assert create_consent.status_code == 201
+    consent = create_consent.json()
+    assert consent["status"] == "active"
+
+    revoke = client.post(
+        f"/api/v1/patients/{created_patient['id']}/consents/{consent['id']}/revoke",
+        headers=AUTH_HEADER,
+    )
+    assert revoke.status_code == 200
+    assert revoke.json()["status"] == "revoked"
+    assert revoke.json()["revoked_at"] is not None
+
+    assert len(captured_events) == 2
+    assert captured_events[0][1]["operation"] == "create_consent"
+    assert captured_events[0][1]["status"] == "success"
+    assert captured_events[1][1]["operation"] == "revoke_consent"
+    assert captured_events[1][1]["status"] == "success"
+
+
+def test_create_consent_rejects_unknown_patient(monkeypatch):
+    _auth_ok(monkeypatch)
+
+    def create_event(*, token: str, payload: dict) -> dict:
+        return {"id": "event-x", "token": token, "payload": payload}
+
+    monkeypatch.setattr(main._audit_client, "create_event", create_event)
+
+    response = client.post(
+        "/api/v1/patients/patient-inexistente/consents",
+        json={
+            "legal_basis": "consentimento",
+            "purpose": "Compartilhamento de dados",
+        },
+        headers=AUTH_HEADER,
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "patient not found"
