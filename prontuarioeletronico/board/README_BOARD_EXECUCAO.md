@@ -45,6 +45,7 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - [LGPD-01_RELATORIO_TECNICO_CONSENTIMENTO_BASE_LEGAL.md](LGPD-01_RELATORIO_TECNICO_CONSENTIMENTO_BASE_LEGAL.md)
 - Proxima entrega (MS-06):
   - [MS-06_PLANO_EXECUTAVEL_PROFESSIONAL_SERVICE.md](MS-06_PLANO_EXECUTAVEL_PROFESSIONAL_SERVICE.md)
+  - [MS-06_RELATORIO_TECNICO_PROFESSIONAL_SERVICE.md](MS-06_RELATORIO_TECNICO_PROFESSIONAL_SERVICE.md)
 - Protocolo de testabilidade do prototipo:
   - [TESTABILIDADE_PROTOCOLO_EXECUCAO.md](TESTABILIDADE_PROTOCOLO_EXECUCAO.md)
 
@@ -58,6 +59,10 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - Commit: `41c9c6db59be63f6f8323a60d8a2c4cf5e5c7e51`
   - Run de referencia: `22958751261`
   - URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/22958751261`
+- Baseline MS-06 (issue #32) em `main`:
+  - Commit: `5438e4defa0056bc3fe397ac09fecc93dfdfe031`
+  - Run de referencia: `23017711685`
+  - URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23017711685`
 - Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `scheduling-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`.
 
 Observacao:
