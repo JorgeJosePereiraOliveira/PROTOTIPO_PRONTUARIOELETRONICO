@@ -73,6 +73,17 @@ class AppointmentPayload(BaseModel):
     reason: str
 
 
+class ProfessionalPayload(BaseModel):
+    full_name: str
+    document_cpf: str
+    council_type: str
+    council_uf: str
+    council_number: str
+    occupation: str
+    specialty: str | None = None
+    auth_user_id: str | None = None
+
+
 class AuditEventPayload(BaseModel):
     actor_id: str
     actor_role: str
@@ -91,6 +102,7 @@ PATIENT_SERVICE_URL = os.getenv("PATIENT_SERVICE_URL")
 EMR_SERVICE_URL = os.getenv("EMR_SERVICE_URL")
 SCHEDULING_SERVICE_URL = os.getenv("SCHEDULING_SERVICE_URL")
 AUDIT_SERVICE_URL = os.getenv("AUDIT_SERVICE_URL")
+PROFESSIONAL_SERVICE_URL = os.getenv("PROFESSIONAL_SERVICE_URL")
 
 if APP_ENV in {"production", "staging"}:
     if AUTH_SERVICE_URL is None:
@@ -103,6 +115,8 @@ if APP_ENV in {"production", "staging"}:
         raise RuntimeError("SCHEDULING_SERVICE_URL is required for production/staging")
     if AUDIT_SERVICE_URL is None:
         raise RuntimeError("AUDIT_SERVICE_URL is required for production/staging")
+    if PROFESSIONAL_SERVICE_URL is None:
+        raise RuntimeError("PROFESSIONAL_SERVICE_URL is required for production/staging")
 
 if AUTH_SERVICE_URL is None:
     AUTH_SERVICE_URL = "http://localhost:8001"
@@ -114,12 +128,15 @@ if SCHEDULING_SERVICE_URL is None:
     SCHEDULING_SERVICE_URL = "http://localhost:8004"
 if AUDIT_SERVICE_URL is None:
     AUDIT_SERVICE_URL = "http://localhost:8005"
+if PROFESSIONAL_SERVICE_URL is None:
+    PROFESSIONAL_SERVICE_URL = "http://localhost:8006"
 
 _auth_proxy = HttpServiceProxy(base_url=AUTH_SERVICE_URL)
 _patient_proxy = HttpServiceProxy(base_url=PATIENT_SERVICE_URL)
 _emr_proxy = HttpServiceProxy(base_url=EMR_SERVICE_URL)
 _scheduling_proxy = HttpServiceProxy(base_url=SCHEDULING_SERVICE_URL)
 _audit_proxy = HttpServiceProxy(base_url=AUDIT_SERVICE_URL)
+_professional_proxy = HttpServiceProxy(base_url=PROFESSIONAL_SERVICE_URL)
 
 
 def _forward_response(status_code: int, body: object) -> JSONResponse:
@@ -137,7 +154,7 @@ def service_info():
         "service": "gateway",
         "architecture": "clean-architecture",
         "layers": ["domain", "application", "infra"],
-        "routes": ["auth", "patients", "emr", "scheduling", "audit"],
+        "routes": ["auth", "patients", "emr", "scheduling", "audit", "professional"],
     }
 
 
@@ -356,6 +373,80 @@ def get_soap(soap_id: str, authorization: str | None = Header(default=None)):
     status_code, body = _emr_proxy.request(
         method="GET",
         path=f"/api/v1/emr/soap/{soap_id}",
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.post("/api/v1/professionals")
+def create_professional(
+    payload: ProfessionalPayload,
+    authorization: str | None = Header(default=None),
+):
+    status_code, body = _professional_proxy.request(
+        method="POST",
+        path="/api/v1/professionals",
+        json_body=payload.model_dump(),
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.get("/api/v1/professionals")
+def list_professionals(
+    council_type: str | None = Query(default=None),
+    council_uf: str | None = Query(default=None),
+    council_number: str | None = Query(default=None),
+    status: str | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
+    params: dict[str, str] = {}
+    if council_type is not None:
+        params["council_type"] = council_type
+    if council_uf is not None:
+        params["council_uf"] = council_uf
+    if council_number is not None:
+        params["council_number"] = council_number
+    if status is not None:
+        params["status"] = status
+
+    status_code, body = _professional_proxy.request(
+        method="GET",
+        path="/api/v1/professionals",
+        params=params or None,
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.get("/api/v1/professionals/{professional_id}")
+def get_professional(professional_id: str, authorization: str | None = Header(default=None)):
+    status_code, body = _professional_proxy.request(
+        method="GET",
+        path=f"/api/v1/professionals/{professional_id}",
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.post("/api/v1/professionals/{professional_id}/activate")
+def activate_professional(professional_id: str, authorization: str | None = Header(default=None)):
+    status_code, body = _professional_proxy.request(
+        method="POST",
+        path=f"/api/v1/professionals/{professional_id}/activate",
+        authorization=authorization,
+    )
+    return _forward_response(status_code, body)
+
+
+@app.post("/api/v1/professionals/{professional_id}/deactivate")
+def deactivate_professional(
+    professional_id: str,
+    authorization: str | None = Header(default=None),
+):
+    status_code, body = _professional_proxy.request(
+        method="POST",
+        path=f"/api/v1/professionals/{professional_id}/deactivate",
         authorization=authorization,
     )
     return _forward_response(status_code, body)

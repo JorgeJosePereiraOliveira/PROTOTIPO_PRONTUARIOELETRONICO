@@ -11,6 +11,7 @@ PATIENT_SERVICE_ROOT = SERVICES_DIR / "patient-service"
 EMR_SERVICE_ROOT = SERVICES_DIR / "emr-service"
 SCHEDULING_SERVICE_ROOT = SERVICES_DIR / "scheduling-service"
 AUDIT_SERVICE_ROOT = SERVICES_DIR / "audit-service"
+PROFESSIONAL_SERVICE_ROOT = SERVICES_DIR / "professional-service"
 
 if str(AUTH_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(AUTH_SERVICE_ROOT))
@@ -22,6 +23,8 @@ if str(SCHEDULING_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(SCHEDULING_SERVICE_ROOT))
 if str(AUDIT_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(AUDIT_SERVICE_ROOT))
+if str(PROFESSIONAL_SERVICE_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROFESSIONAL_SERVICE_ROOT))
 
 os.environ.setdefault("AUTH_JWT_SECRET", "test-secret-gateway")
 os.environ.setdefault("AUTH_DATABASE_URL", "sqlite:///./test_auth_gateway.db")
@@ -29,12 +32,14 @@ os.environ.setdefault("PATIENT_DATABASE_URL", "sqlite:///./test_patient_gateway.
 os.environ.setdefault("EMR_DATABASE_URL", "sqlite:///./test_emr_gateway.db")
 os.environ.setdefault("SCHEDULING_DATABASE_URL", "sqlite:///./test_scheduling_gateway.db")
 os.environ.setdefault("AUDIT_DATABASE_URL", "sqlite:///./test_audit_gateway.db")
+os.environ.setdefault("PROFESSIONAL_DATABASE_URL", "sqlite:///./test_professional_gateway.db")
 
 from src.auth.infra.api.main import app as auth_app
 from src.emr.infra.api import main as emr_main
 from src.audit.infra.api import main as audit_main
 from src.scheduling.infra.api import main as scheduling_main
 from src.patient.infra.api import main as patient_main
+from src.professional.infra.api import main as professional_main
 from src.gateway.infra.api import main as gateway_main
 
 
@@ -98,16 +103,19 @@ def setup_function() -> None:
     emr_main._auth_client = LocalAuthServiceClient(auth_client)
     scheduling_main._auth_client = LocalAuthServiceClient(auth_client)
     audit_main._auth_client = LocalAuthServiceClient(auth_client)
+    professional_main._auth_client = LocalAuthServiceClient(auth_client)
     patient_main._reset_for_tests()
     emr_main._reset_for_tests()
     scheduling_main._reset_for_tests()
     audit_main._reset_for_tests()
+    professional_main._reset_for_tests()
 
     gateway_main._auth_proxy = LocalServiceProxy(auth_client)
     gateway_main._patient_proxy = LocalServiceProxy(TestClient(patient_main.app))
     gateway_main._emr_proxy = LocalServiceProxy(TestClient(emr_main.app))
     gateway_main._scheduling_proxy = LocalServiceProxy(TestClient(scheduling_main.app))
     gateway_main._audit_proxy = LocalServiceProxy(TestClient(audit_main.app))
+    gateway_main._professional_proxy = LocalServiceProxy(TestClient(professional_main.app))
 
 
 def _gateway_login(client: TestClient, username: str, password: str) -> dict:
@@ -397,3 +405,63 @@ def test_gateway_end_to_end_audit_flow():
     )
     assert get_response.status_code == 200
     assert get_response.json()["id"] == event_id
+
+
+def test_gateway_end_to_end_professional_flow():
+    gateway_client = TestClient(gateway_main.app)
+    admin_tokens = _gateway_login(gateway_client, "admin", "admin123")
+    prof_tokens = _gateway_login(gateway_client, "profissional", "prof123")
+    auth_header_admin = {"Authorization": f"Bearer {admin_tokens['access_token']}"}
+    auth_header_prof = {"Authorization": f"Bearer {prof_tokens['access_token']}"}
+
+    forbidden_create = gateway_client.post(
+        "/api/v1/professionals",
+        json={
+            "full_name": "Dr. Gateway Restrito",
+            "document_cpf": "92345678901",
+            "council_type": "CRM",
+            "council_uf": "SP",
+            "council_number": "888999",
+            "occupation": "medico",
+        },
+        headers=auth_header_prof,
+    )
+    assert forbidden_create.status_code == 403
+
+    created = gateway_client.post(
+        "/api/v1/professionals",
+        json={
+            "full_name": "Dra. Gateway Admin",
+            "document_cpf": "93345678901",
+            "council_type": "CRM",
+            "council_uf": "SP",
+            "council_number": "777666",
+            "occupation": "medico",
+            "specialty": "cardiologia",
+        },
+        headers=auth_header_admin,
+    )
+    assert created.status_code == 201
+    professional_id = created.json()["id"]
+
+    listed = gateway_client.get(
+        "/api/v1/professionals",
+        params={"status": "active"},
+        headers=auth_header_prof,
+    )
+    assert listed.status_code == 200
+    assert len(listed.json()) == 1
+
+    get_response = gateway_client.get(
+        f"/api/v1/professionals/{professional_id}",
+        headers=auth_header_prof,
+    )
+    assert get_response.status_code == 200
+    assert get_response.json()["id"] == professional_id
+
+    deactivated = gateway_client.post(
+        f"/api/v1/professionals/{professional_id}/deactivate",
+        headers=auth_header_admin,
+    )
+    assert deactivated.status_code == 200
+    assert deactivated.json()["status"] == "inactive"

@@ -40,7 +40,12 @@
     "DELETE /api/v1/scheduling/appointments/{appointment_id}",
     "POST /api/v1/audit/events",
     "GET /api/v1/audit/events",
-    "GET /api/v1/audit/events/{event_id}"
+    "GET /api/v1/audit/events/{event_id}",
+    "POST /api/v1/professionals",
+    "GET /api/v1/professionals",
+    "GET /api/v1/professionals/{professional_id}",
+    "POST /api/v1/professionals/{professional_id}/activate",
+    "POST /api/v1/professionals/{professional_id}/deactivate"
   ],
   "emr-service": [
     "GET /health",
@@ -64,5 +69,14 @@
     "POST /api/v1/audit/events",
     "GET /api/v1/audit/events",
     "GET /api/v1/audit/events/{event_id}"
+  ],
+  "professional-service": [
+    "GET /health",
+    "GET /api/v1/info",
+    "POST /api/v1/professionals",
+    "GET /api/v1/professionals",
+    "GET /api/v1/professionals/{professional_id}",
+    "POST /api/v1/professionals/{professional_id}/activate",
+    "POST /api/v1/professionals/{professional_id}/deactivate"
   ]
 }

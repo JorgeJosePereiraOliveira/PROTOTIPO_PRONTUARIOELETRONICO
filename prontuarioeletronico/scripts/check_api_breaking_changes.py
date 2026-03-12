@@ -37,6 +37,7 @@ SERVICES = {
             "EMR_SERVICE_URL": "http://localhost:8003",
             "SCHEDULING_SERVICE_URL": "http://localhost:8004",
             "AUDIT_SERVICE_URL": "http://localhost:8005",
+            "PROFESSIONAL_SERVICE_URL": "http://localhost:8006",
         },
     },
     "emr-service": {
@@ -64,6 +65,16 @@ SERVICES = {
             "APP_ENV": "test",
             "AUDIT_DATABASE_URL": "sqlite:///./test_audit_compat.db",
             "AUTH_SERVICE_URL": "http://localhost:8001",
+        },
+    },
+    "professional-service": {
+        "service_root": ROOT / "services" / "professional-service",
+        "import_path": "src.professional.infra.api.main",
+        "env": {
+            "APP_ENV": "test",
+            "PROFESSIONAL_DATABASE_URL": "sqlite:///./test_professional_compat.db",
+            "AUTH_SERVICE_URL": "http://localhost:8001",
+            "AUDIT_SERVICE_URL": "http://localhost:8005",
         },
     },
 }
