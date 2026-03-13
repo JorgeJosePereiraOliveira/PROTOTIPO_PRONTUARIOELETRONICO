@@ -1,0 +1,187 @@
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+    image: tcc/auth-service:docker02
+    container_name: tcc-auth-service
+    environment:
+      APP_ENV: development
+      AUTH_JWT_SECRET: change-me-dev-secret
+      AUTH_DATABASE_URL: sqlite:////app/data/auth.db
+    volumes:
+      - auth_data:/app/data
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  patient-service:
+    build:
+      context: ./patient-service
+    image: tcc/patient-service:docker02
+    container_name: tcc-patient-service
+    environment:
+      APP_ENV: development
+      AUTH_SERVICE_URL: http://auth-service:8000
+      AUDIT_SERVICE_URL: http://audit-service:8000
+      PATIENT_DATABASE_URL: sqlite:////app/data/patient.db
+    volumes:
+      - patient_data:/app/data
+    ports:
+      - "8002:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  emr-service:
+    build:
+      context: ./emr-service
+    image: tcc/emr-service:docker02
+    container_name: tcc-emr-service
+    environment:
+      APP_ENV: development
+      AUTH_SERVICE_URL: http://auth-service:8000
+      AUDIT_SERVICE_URL: http://audit-service:8000
+      EMR_DATABASE_URL: sqlite:////app/data/emr.db
+    volumes:
+      - emr_data:/app/data
+    ports:
+      - "8003:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  scheduling-service:
+    build:
+      context: ./scheduling-service
+    image: tcc/scheduling-service:docker02
+    container_name: tcc-scheduling-service
+    environment:
+      APP_ENV: development
+      AUTH_SERVICE_URL: http://auth-service:8000
+      SCHEDULING_DATABASE_URL: sqlite:////app/data/scheduling.db
+    volumes:
+      - scheduling_data:/app/data
+    ports:
+      - "8004:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  audit-service:
+    build:
+      context: ./audit-service
+    image: tcc/audit-service:docker02
+    container_name: tcc-audit-service
+    environment:
+      APP_ENV: development
+      AUTH_SERVICE_URL: http://auth-service:8000
+      AUDIT_DATABASE_URL: sqlite:////app/data/audit.db
+    volumes:
+      - audit_data:/app/data
+    ports:
+      - "8005:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  professional-service:
+    build:
+      context: ./professional-service
+    image: tcc/professional-service:docker02
+    container_name: tcc-professional-service
+    environment:
+      APP_ENV: development
+      AUTH_SERVICE_URL: http://auth-service:8000
+      AUDIT_SERVICE_URL: http://audit-service:8000
+      PROFESSIONAL_DATABASE_URL: sqlite:////app/data/professional.db
+    volumes:
+      - professional_data:/app/data
+    ports:
+      - "8006:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    image: tcc/gateway-service:docker02
+    container_name: tcc-gateway-service
+    environment:
+      APP_ENV: development
+      AUTH_SERVICE_URL: http://auth-service:8000
+      PATIENT_SERVICE_URL: http://patient-service:8000
+      EMR_SERVICE_URL: http://emr-service:8000
+      SCHEDULING_SERVICE_URL: http://scheduling-service:8000
+      AUDIT_SERVICE_URL: http://audit-service:8000
+      PROFESSIONAL_SERVICE_URL: http://professional-service:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      patient-service:
+        condition: service_healthy
+      emr-service:
+        condition: service_healthy
+      scheduling-service:
+        condition: service_healthy
+      audit-service:
+        condition: service_healthy
+      professional-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  auth_data:
+  patient_data:
+  emr_data:
+  scheduling_data:
+  audit_data:
+  professional_data:
