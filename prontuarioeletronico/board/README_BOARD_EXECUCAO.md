@@ -67,6 +67,10 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - Commit: `5438e4defa0056bc3fe397ac09fecc93dfdfe031`
   - Run de referencia: `23017711685`
   - URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23017711685`
+- Baseline DOCKER-02 (issue #16) em `main`:
+  - Commit: `e6196eb3c5fe53495c84aa65c59808a700f45c52`
+  - Run de referencia: `23057545957`
+  - URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23057545957`
 - Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `scheduling-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`.
 
 Observacao:
