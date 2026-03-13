@@ -85,3 +85,6 @@ secrets.*
 venv/
 .venv/
 ENV/
+
+# DOCKER-03 local artifacts
+prontuarioeletronico/board/sbom/*.cdx.json

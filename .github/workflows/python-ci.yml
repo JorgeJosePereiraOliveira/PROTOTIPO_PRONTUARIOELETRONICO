@@ -50,6 +50,15 @@ jobs:
         bandit -r prontuarioeletronico/services/scheduling-service/src -lll -iii
         bandit -r prontuarioeletronico/services/audit-service/src -lll -iii
         bandit -r prontuarioeletronico/services/professional-service/src -lll -iii
+    - name: Build images, block CRITICAL CVEs and generate SBOM
+      run: |
+        bash prontuarioeletronico/scripts/generate_sbom_and_scan_images.sh
+    - name: Upload SBOM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom-cyclonedx-docker03
+        path: prontuarioeletronico/board/sbom/*.cdx.json
+        if-no-files-found: error
 
   core-tests:
     runs-on: ubuntu-latest
