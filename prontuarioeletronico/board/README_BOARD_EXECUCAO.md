@@ -79,7 +79,11 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - Commit: `c5d690fa653b28f25a8b5f8bbf70bc20704c78f4`
   - Run de referencia: `23065233848`
   - URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23065233848`
-- Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `scheduling-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`.
+- Baseline CICD-02 (issue #18) em `main`:
+  - Commit: `e7c0df23d3744f710a876b4db199f2fc6d61d1d8`
+  - Run de referencia: `23067092591`
+  - URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23067092591`
+- Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `scheduling-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`, `cicd-publish-images`.
 
 Observacao:
 - Falhas historicas em runs antigos podem existir e foram mantidas para rastreabilidade.
