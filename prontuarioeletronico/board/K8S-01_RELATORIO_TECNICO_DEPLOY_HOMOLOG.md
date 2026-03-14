@@ -53,6 +53,10 @@ Precondicoes de execucao em cluster:
 - [x] Manifests base por servico com probes e configuracao por ambiente.
 - [ ] Validacao de deploy real em cluster homolog pendente de disponibilidade/configuracao de segredos do cluster no repositório.
 
+Evidencia da execucao inicial da esteira:
+- Run: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23092289136`
+- Job `k8s-deploy-homolog`: `success` com caminho de `skip` controlado para deploy real, devido ausencia de `KUBE_CONFIG_DATA`.
+
 ---
 
 ## 5) Proximo passo operacional
