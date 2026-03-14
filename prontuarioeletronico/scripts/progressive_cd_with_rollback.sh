@@ -15,6 +15,33 @@ if [ "${#trace_files[@]}" -eq 0 ]; then
   exit 1
 fi
 
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_BIN="python"
+else
+  echo "Python interpreter not found (python3/python)." >&2
+  exit 1
+fi
+
+read_trace_field() {
+  local trace_file="$1"
+  local field_name="$2"
+  "$PYTHON_BIN" - "$trace_file" "$field_name" <<'PY'
+import json
+import sys
+
+file_path = sys.argv[1]
+field = sys.argv[2]
+with open(file_path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+value = data.get(field, "")
+if value is None:
+    value = ""
+print(value)
+PY
+}
+
 overall_breach=false
 
 {
@@ -27,9 +54,9 @@ overall_breach=false
   echo "|---|---|---|---|"
 
   for trace_file in "${trace_files[@]}"; do
-    service="$(jq -r '.service' "${trace_file}")"
-    repository="$(jq -r '.repository' "${trace_file}")"
-    digest="$(jq -r '.digest' "${trace_file}")"
+    service="$(read_trace_field "${trace_file}" service)"
+    repository="$(read_trace_field "${trace_file}" repository)"
+    digest="$(read_trace_field "${trace_file}" digest)"
 
     if [ -z "${service}" ] || [ -z "${repository}" ] || [ -z "${digest}" ] || [ "${digest}" = "null" ]; then
       echo "Invalid trace metadata in ${trace_file}" >&2

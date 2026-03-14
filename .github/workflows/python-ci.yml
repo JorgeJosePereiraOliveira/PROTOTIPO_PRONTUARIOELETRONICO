@@ -359,3 +359,51 @@ jobs:
         name: progressive-rollout-report
         path: rollout-report/progressive-rollout-summary.md
         if-no-files-found: error
+
+  k8s-deploy-homolog:
+    if: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch') && secrets.KUBE_CONFIG_DATA != '' }}
+    needs:
+      - cicd-progressive-cd
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download artifact traces
+      uses: actions/download-artifact@v4
+      with:
+        pattern: artifact-trace-*
+        path: artifact-trace
+        merge-multiple: true
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v4
+      with:
+        version: v1.30.0
+    - name: Prepare kubeconfig
+      run: |
+        mkdir -p "$RUNNER_TEMP/.kube"
+        echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > "$RUNNER_TEMP/.kube/config"
+    - name: Render manifests from promoted digests
+      env:
+        TRACE_DIR: artifact-trace
+        OUTPUT_DIR: k8s-rendered
+        NAMESPACE: prontuario-homolog
+        AUTH_JWT_SECRET: ${{ secrets.AUTH_JWT_SECRET_HOMOLOG }}
+      run: |
+        bash prontuarioeletronico/scripts/render_k8s_manifests_from_trace.sh
+    - name: Deploy to homolog cluster
+      env:
+        KUBE_CONFIG: ${{ runner.temp }}/.kube/config
+        MANIFEST_DIR: k8s-rendered
+        NAMESPACE: prontuario-homolog
+      run: |
+        bash prontuarioeletronico/scripts/deploy_k8s_homolog.sh
+    - name: Upload Kubernetes manifests and deploy report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: k8s-homolog-deploy-artifacts
+        path: |
+          k8s-rendered/*.yaml
+          rollout-report/k8s-homolog-deploy-report.md
+        if-no-files-found: error
