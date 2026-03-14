@@ -84,6 +84,10 @@ for trace_file in "${trace_files[@]}"; do
 
   db_name="${service%-service}"
   image_ref="${repository}@${digest}"
+  replicas=1
+  if [ "${service}" = "auth-service" ] || [ "${service}" = "gateway-service" ] || [ "${service}" = "patient-service" ]; then
+    replicas=2
+  fi
 
   cat >> "${OUTPUT_DIR}/10-services.yaml" <<EOF
 ---
@@ -95,7 +99,7 @@ metadata:
   labels:
     app: ${service}
 spec:
-  replicas: 1
+  replicas: ${replicas}
   selector:
     matchLabels:
       app: ${service}
@@ -124,6 +128,13 @@ spec:
           initialDelaySeconds: 20
           periodSeconds: 20
           timeoutSeconds: 3
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         volumeMounts:
         - name: data
           mountPath: /app/data
@@ -297,6 +308,101 @@ spec:
             name: gateway-service
             port:
               number: 8000
+EOF
+
+cat > "${OUTPUT_DIR}/30-resilience.yaml" <<EOF
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: auth-service-hpa
+  namespace: ${NAMESPACE}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: auth-service
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: patient-service-hpa
+  namespace: ${NAMESPACE}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: patient-service
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: gateway-service-hpa
+  namespace: ${NAMESPACE}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: gateway-service
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: auth-service-pdb
+  namespace: ${NAMESPACE}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: auth-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: patient-service-pdb
+  namespace: ${NAMESPACE}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: patient-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: gateway-service-pdb
+  namespace: ${NAMESPACE}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: gateway-service
 EOF
 
 echo "Rendered manifests in ${OUTPUT_DIR}"
