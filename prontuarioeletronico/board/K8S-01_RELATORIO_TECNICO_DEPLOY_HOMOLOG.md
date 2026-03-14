@@ -61,6 +61,11 @@ Evidencia da execucao inicial da esteira:
 Atualizacao da abordagem (fatia seguinte):
 - pipeline ajustado para criar cluster `kind` automaticamente quando `KUBE_CONFIG_DATA` estiver ausente, permitindo deploy real em homolog sem bloqueio de ambiente externo.
 
+Evidencia de deploy real em homolog (kind):
+- Run: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23092865644`
+- Job: `k8s-deploy-homolog` -> `success`
+- Etapa executada: `Deploy to homolog kind cluster` -> `success`
+
 ---
 
 ## 5) Proximo passo operacional
