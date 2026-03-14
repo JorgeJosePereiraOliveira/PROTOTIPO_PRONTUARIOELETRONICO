@@ -97,6 +97,10 @@ Este diretório contém o board operacional do backlog técnico em formato execu
   - Commit: `1ad77fe7091fef2ea1d1c9e16786abf39ee08521`
   - Run de referencia: `23092865644`
   - URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23092865644`
+- Baseline K8S-02 (issue #20) em `main`:
+  - Commit: `925fe48e253df7dbce0062b36d870588695d50db`
+  - Run de referencia: `23093436279`
+  - URL: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23093436279`
 - Checks obrigatorios no baseline: `core-tests`, `auth-service-tests`, `patient-service-tests`, `emr-service-tests`, `scheduling-service-tests`, `gateway-integration-tests`, `api-compatibility-check`, `security-baseline`, `cicd-publish-images`, `cicd-progressive-cd`, `k8s-deploy-homolog`.
 
 Observacao:
