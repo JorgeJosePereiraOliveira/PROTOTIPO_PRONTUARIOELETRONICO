@@ -42,8 +42,9 @@ O job `k8s-deploy-homolog`:
 5. publica artefatos de evidência (`k8s-homolog-deploy-artifacts`).
 
 Precondicoes de execucao em cluster:
-- `KUBE_CONFIG_DATA` (base64 do kubeconfig)
-- `AUTH_JWT_SECRET_HOMOLOG`
+- caminho A (cluster externo): `KUBE_CONFIG_DATA` (base64 do kubeconfig)
+- caminho B (fallback automatizado): cluster efemero `kind` criado no proprio runner
+- `AUTH_JWT_SECRET_HOMOLOG` e opcional (fallback para valor de desenvolvimento controlado)
 
 ---
 
@@ -51,11 +52,14 @@ Precondicoes de execucao em cluster:
 
 - [x] Conexao CICD-03 -> K8S-01 implementada tecnicamente no pipeline.
 - [x] Manifests base por servico com probes e configuracao por ambiente.
-- [ ] Validacao de deploy real em cluster homolog pendente de disponibilidade/configuracao de segredos do cluster no repositório.
+- [x] Validacao de deploy real em cluster homolog via fallback `kind` quando segredo externo nao esta disponivel.
 
 Evidencia da execucao inicial da esteira:
 - Run: `https://github.com/JorgeJosePereiraOliveira/PROTOTIPO_PRONTUARIOELETRONICO/actions/runs/23092289136`
-- Job `k8s-deploy-homolog`: `success` com caminho de `skip` controlado para deploy real, devido ausencia de `KUBE_CONFIG_DATA`.
+- Job `k8s-deploy-homolog`: `success` (neste run ainda no caminho de skip).
+
+Atualizacao da abordagem (fatia seguinte):
+- pipeline ajustado para criar cluster `kind` automaticamente quando `KUBE_CONFIG_DATA` estiver ausente, permitindo deploy real em homolog sem bloqueio de ambiente externo.
 
 ---
 

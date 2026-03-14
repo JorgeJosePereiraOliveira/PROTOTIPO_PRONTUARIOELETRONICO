@@ -375,68 +375,71 @@ jobs:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       run: |
         if [ -z "$KUBE_CONFIG_DATA" ]; then
-          echo "enabled=false" >> "$GITHUB_OUTPUT"
-          echo "KUBE_CONFIG_DATA is not configured. Skipping cluster deploy stage."
+          echo "mode=kind" >> "$GITHUB_OUTPUT"
+          echo "KUBE_CONFIG_DATA is not configured. Falling back to ephemeral kind cluster."
         else
-          echo "enabled=true" >> "$GITHUB_OUTPUT"
+          echo "mode=external" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Resolve homolog auth secret
+      id: authsecret
+      env:
+        AUTH_JWT_SECRET_HOMOLOG: ${{ secrets.AUTH_JWT_SECRET_HOMOLOG }}
+      run: |
+        if [ -z "$AUTH_JWT_SECRET_HOMOLOG" ]; then
+          echo "value=change-me-dev-secret" >> "$GITHUB_OUTPUT"
+        else
+          echo "value=$AUTH_JWT_SECRET_HOMOLOG" >> "$GITHUB_OUTPUT"
         fi
     - name: Download artifact traces
-      if: steps.prereq.outputs.enabled == 'true'
       uses: actions/download-artifact@v4
       with:
         pattern: artifact-trace-*
         path: artifact-trace
         merge-multiple: true
     - name: Set up kubectl
-      if: steps.prereq.outputs.enabled == 'true'
       uses: azure/setup-kubectl@v4
       with:
         version: v1.30.0
+    - name: Set up kind cluster
+      if: steps.prereq.outputs.mode == 'kind'
+      uses: helm/kind-action@v1.10.0
+      with:
+        cluster_name: prontuario-homolog
     - name: Prepare kubeconfig
-      if: steps.prereq.outputs.enabled == 'true'
+      if: steps.prereq.outputs.mode == 'external'
       run: |
         mkdir -p "$RUNNER_TEMP/.kube"
         echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > "$RUNNER_TEMP/.kube/config"
     - name: Render manifests from promoted digests
-      if: steps.prereq.outputs.enabled == 'true'
       env:
         TRACE_DIR: artifact-trace
         OUTPUT_DIR: k8s-rendered
         NAMESPACE: prontuario-homolog
-        AUTH_JWT_SECRET: ${{ secrets.AUTH_JWT_SECRET_HOMOLOG }}
+        AUTH_JWT_SECRET: ${{ steps.authsecret.outputs.value }}
       run: |
         bash prontuarioeletronico/scripts/render_k8s_manifests_from_trace.sh
     - name: Deploy to homolog cluster
-      if: steps.prereq.outputs.enabled == 'true'
+      if: steps.prereq.outputs.mode == 'external'
       env:
         KUBE_CONFIG: ${{ runner.temp }}/.kube/config
         MANIFEST_DIR: k8s-rendered
         NAMESPACE: prontuario-homolog
       run: |
         bash prontuarioeletronico/scripts/deploy_k8s_homolog.sh
+    - name: Deploy to homolog kind cluster
+      if: steps.prereq.outputs.mode == 'kind'
+      env:
+        KUBE_CONFIG: /home/runner/.kube/config
+        MANIFEST_DIR: k8s-rendered
+        NAMESPACE: prontuario-homolog
+      run: |
+        bash prontuarioeletronico/scripts/deploy_k8s_homolog.sh
     - name: Upload Kubernetes manifests and deploy report
-      if: always() && steps.prereq.outputs.enabled == 'true'
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: k8s-homolog-deploy-artifacts
         path: |
           k8s-rendered/*.yaml
           rollout-report/k8s-homolog-deploy-report.md
-        if-no-files-found: error
-    - name: Register skipped deploy report
-      if: steps.prereq.outputs.enabled != 'true'
-      run: |
-        mkdir -p rollout-report
-        cat > rollout-report/k8s-homolog-deploy-report.md <<'EOF'
-        # K8S-01 Homolog Deployment Report
-
-        Cluster deploy stage was skipped because `KUBE_CONFIG_DATA` is not configured.
-        Configure cluster secrets to enable real homolog deployment.
-        EOF
-    - name: Upload skipped deploy report
-      if: steps.prereq.outputs.enabled != 'true'
-      uses: actions/upload-artifact@v4
-      with:
-        name: k8s-homolog-deploy-artifacts
-        path: rollout-report/k8s-homolog-deploy-report.md
         if-no-files-found: error

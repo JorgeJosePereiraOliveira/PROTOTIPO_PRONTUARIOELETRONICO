@@ -10,7 +10,9 @@ Conectar a promocao progressiva (CICD-03) ao deploy real em cluster de homolog, 
 
 1. `cicd-publish-images` publica imagens no GHCR e gera `artifact-trace-*`.
 2. `cicd-progressive-cd` promove por estagios (`dev`, `homolog`, `prod-canary`, `prod`).
-3. `k8s-deploy-homolog` consome os traces e aplica manifests no cluster.
+3. `k8s-deploy-homolog` consome os traces e aplica manifests no cluster:
+  - cluster externo (quando `KUBE_CONFIG_DATA` esta configurado);
+  - fallback para cluster efemero `kind` (quando segredo nao existe).
 
 ## Scripts
 
@@ -19,9 +21,9 @@ Conectar a promocao progressiva (CICD-03) ao deploy real em cluster de homolog, 
 - `prontuarioeletronico/scripts/deploy_k8s_homolog.sh`
   - Aplica manifests no cluster e valida rollout de todos os deployments.
 
-## Segredos necessarios no GitHub
+## Segredos opcionais no GitHub
 
-- `KUBE_CONFIG_DATA`: kubeconfig do cluster em Base64.
+- `KUBE_CONFIG_DATA`: kubeconfig do cluster externo em Base64.
 - `AUTH_JWT_SECRET_HOMOLOG`: segredo JWT para `auth-service` em homolog.
 
-Sem esses segredos, o job de deploy em cluster e ignorado para nao quebrar a esteira de CI.
+Sem `KUBE_CONFIG_DATA`, o deploy e realizado automaticamente em cluster `kind` de homolog para validacao executavel da esteira.
